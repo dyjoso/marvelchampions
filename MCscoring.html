@@ -1,0 +1,400 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Champions Scenario Scoring</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics in dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #06b6d4; /* cyan-500 */
+        }
+        .toggle-checkbox:checked + .toggle-label .toggle-ball {
+            transform: translateX(1.25rem);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-red-500 tracking-tight">Marvel Champions Scenario Scoring</h1>
+            <p class="text-xs text-gray-500 mt-2">This scoring system is inspired by, but totally unrelated to, the Solo Champions League scoring system developed by Innsmouth Bear.</p>
+            <!-- View Toggle -->
+            <div class="mt-6 flex justify-center items-center space-x-3">
+                <span id="scoringModeLabel" class="text-gray-400 font-medium">Scoring Mode</span>
+                <div class="relative">
+                    <input type="checkbox" id="viewToggle" class="toggle-checkbox absolute w-0 h-0 opacity-0">
+                    <label for="viewToggle" class="toggle-label flex items-center w-12 h-6 bg-gray-700 rounded-full cursor-pointer transition-colors duration-300 ease-in-out">
+                        <span class="toggle-ball inline-block w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out"></span>
+                    </label>
+                </div>
+                <span id="designerModeLabel" class="text-white font-medium">Designer Mode</span>
+            </div>
+        </header>
+
+        <div id="mainGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Column: Game Inputs -->
+            <div id="inputsColumn" class="lg:col-span-1 bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col">
+                <h2 class="text-2xl font-bold mb-6 text-cyan-400 border-b border-gray-700 pb-3">Game State Inputs</h2>
+                
+                <div class="space-y-5 flex-grow">
+                    <!-- Outcome -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Game Outcome</label>
+                        <div class="flex gap-4 bg-gray-700 p-1 rounded-lg">
+                            <button id="outcomeWin" class="outcome-btn flex-1 p-2 rounded-md text-sm font-semibold transition-colors bg-cyan-500 text-white">Victory</button>
+                            <button id="outcomeLoss" class="outcome-btn flex-1 p-2 rounded-md text-sm font-semibold transition-colors text-gray-300">Defeat</button>
+                        </div>
+                    </div>
+
+                    <!-- Turns -->
+                    <div>
+                        <label for="turns" class="block text-sm font-medium text-gray-300">Turns Taken</label>
+                        <input type="number" id="turns" value="6" min="1" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                    </div>
+
+                    <!-- Hero HP -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="heroHPPrinted" class="block text-sm font-medium text-gray-300">Hero Printed HP</label>
+                            <input type="number" id="heroHPPrinted" value="10" min="1" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label for="heroAllyHPFinal" class="block text-sm font-medium text-gray-300">
+                                Hero + Ally HP
+                                <sup class="text-cyan-400 font-bold cursor-help" title="The sum of your hero's remaining HP and all allies' remaining HP.">?</sup>
+                            </label>
+                            <input type="number" id="heroAllyHPFinal" value="8" min="0" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Villain HP -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="villainTotalHP" class="block text-sm font-medium text-gray-300">
+                                Villain Total HP
+                                <sup class="text-cyan-400 font-bold cursor-help" title="The sum of the printed HP for all of the villain's stages.">?</sup>
+                            </label>
+                            <input type="number" id="villainTotalHP" value="24" min="1" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" placeholder="Sum of all stages">
+                        </div>
+                        <div>
+                            <label for="villainHPRemaining" class="block text-sm font-medium text-gray-300">
+                                Villain HP Left
+                                <sup class="text-cyan-400 font-bold cursor-help" title="For a win, this should be 0. For a loss, enter the villain's remaining HP on their current stage.">?</sup>
+                            </label>
+                            <input type="number" id="villainHPRemaining" value="0" min="0" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                    </div>
+
+                    <!-- Threat -->
+                     <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="mainSchemeTotalThreat" class="block text-sm font-medium text-gray-300">
+                                Total Threat Pool
+                                <sup class="text-cyan-400 font-bold cursor-help" title="The sum of the threat thresholds for all main scheme stages (e.g., 1B + 2B).">?</sup>
+                            </label>
+                            <input type="number" id="mainSchemeTotalThreat" value="10" min="1" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" placeholder="Sum of all stages">
+                        </div>
+                        <div>
+                            <label for="threatRemaining" class="block text-sm font-medium text-gray-300">
+                                Threat Left
+                                <sup class="text-cyan-400 font-bold cursor-help" title="The sum of all threat on the main scheme AND any side schemes in play.">?</sup>
+                            </label>
+                            <input type="number" id="threatRemaining" value="2" min="0" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" placeholder="Main + Side Schemes">
+                        </div>
+                    </div>
+
+                    <!-- Minions -->
+                    <div>
+                        <label for="minionHP" class="block text-sm font-medium text-gray-300">Total Minion HP Remaining</label>
+                        <input type="number" id="minionHP" value="0" min="0" class="mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                    </div>
+                </div>
+                <!-- Footnotes Section -->
+                <div class="mt-6 pt-4 border-t border-gray-700 space-y-2 text-xs text-gray-400">
+                    <p><sup class="text-cyan-400 font-bold">?</sup> Hover over the icon for a quick tip.</p>
+                    <p><strong class="text-gray-300">Hero + Ally HP:</strong> Sum of remaining HP for your hero and all allies.</p>
+                    <p><strong class="text-gray-300">Villain Total HP:</strong> Sum of printed HP for all villain stages (e.g., Rhino I + II).</p>
+                    <p><strong class="text-gray-300">Villain HP Left:</strong> For a loss, the villain's total remaining HP (if on stage I, add stage II hp).</p>
+                    <p><strong class="text-gray-300">Total Threat Pool:</strong> Sum of threat thresholds for all main scheme stages.</p>
+                    <p><strong class="text-gray-300">Threat Left:</strong> Sum of all threat on main and side schemes, plus total threat of any flipped main schemes.</p>
+                </div>
+            </div>
+
+            <!-- Middle Column: Score Display -->
+            <div id="scoreColumn" class="lg:col-span-1 bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col">
+                <h2 class="text-2xl font-bold mb-6 text-cyan-400 border-b border-gray-700 pb-3">Score Calculation</h2>
+                
+                <div class="flex-grow flex flex-col items-center justify-center bg-gray-900/50 rounded-xl p-4">
+                    <p class="text-lg text-gray-400">Final Score</p>
+                    <p id="finalScore" class="text-7xl font-bold text-white tracking-tighter">1140</p>
+                </div>
+
+                <div id="scoreBreakdown" class="mt-6 space-y-2 text-sm">
+                    <!-- Breakdown will be populated by JS -->
+                </div>
+            </div>
+
+            <!-- Right Column: Configuration -->
+            <div id="configColumn" class="lg:col-span-1 bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col">
+                <h2 class="text-2xl font-bold mb-6 text-cyan-400 border-b border-gray-700 pb-3">Scoring Formula Variables</h2>
+                <div class="space-y-4 flex-grow">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="baseScore" class="block text-xs font-medium text-gray-400">Base Score</label>
+                            <input type="number" id="baseScore" value="1000" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label for="victoryBonus" class="block text-xs font-medium text-gray-400">Victory Bonus</label>
+                            <input type="number" id="victoryBonus" value="300" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="pointsPerTurn" class="block text-xs font-medium text-gray-400">Penalty per Turn</label>
+                        <input type="number" id="pointsPerTurn" value="50" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                    </div>
+                    <hr class="border-gray-700 my-4">
+                    <div class="grid grid-cols-2 gap-4">
+                         <div>
+                            <label for="pointsPerPercentHealth" class="block text-xs font-medium text-gray-400">Points per % Health</label>
+                            <input type="number" id="pointsPerPercentHealth" value="1" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label for="healthScoreCap" class="block text-xs font-medium text-gray-400">Health Score Cap (%)</label>
+                            <input type="number" id="healthScoreCap" value="110" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                    </div>
+                    <hr class="border-gray-700 my-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="threatClearBonus" class="block text-xs font-medium text-gray-400">Threat Clear Bonus</label>
+                            <input type="number" id="threatClearBonus" value="100" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label for="threatPointsPerPercent" class="block text-xs font-medium text-gray-400">Threat Penalty / %</label>
+                            <input type="number" id="threatPointsPerPercent" value="2" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                    </div>
+                     <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="minionClearBonus" class="block text-xs font-medium text-gray-400">Minion Clear Bonus</label>
+                            <input type="number" id="minionClearBonus" value="100" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label for="minionPointsPerPercent" class="block text-xs font-medium text-gray-400">Minion Penalty / %</label>
+                            <input type="number" id="minionPointsPerPercent" value="2" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        </div>
+                    </div>
+                     <hr class="border-gray-700 my-4">
+                    <div>
+                        <label for="damagePointsPerPercent" class="block text-xs font-medium text-gray-400">Villain HP Penalty / % (on Loss)</label>
+                        <input type="number" id="damagePointsPerPercent" value="3" class="config-input mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                    </div>
+                </div>
+                 <!-- Formula Section -->
+                <div class="mt-6 pt-4 border-t border-gray-700">
+                    <h3 class="text-lg font-bold text-cyan-400 mb-2">Scoring Formula</h3>
+                    <div class="text-xs text-gray-400 bg-gray-900/50 p-3 rounded-lg space-y-1 font-mono">
+                        <p><span class="text-green-400">+ Base Score</span></p>
+                        <p><span class="text-green-400">+ Victory Bonus</span></p>
+                        <p><span class="text-green-400">+ Health Score</span></p>
+                        <p><span class="text-red-400">- Turn Penalty</span></p>
+                        <p><span class="text-green-400">+ Threat Clear Bonus</span> <span class="text-red-400">- Threat Penalty</span></p>
+                        <p><span class="text-green-400">+ Minion Clear Bonus</span> <span class="text-red-400">- Minion Penalty</span></p>
+                        <p><span class="text-red-400">- Damage Penalty (on Loss)</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CORE CALCULATOR LOGIC ---
+        const getVal = id => parseFloat(document.getElementById(id).value) || 0;
+
+        const allInputs = document.querySelectorAll('input');
+        const outcomeButtons = document.querySelectorAll('.outcome-btn');
+        const viewToggle = document.getElementById('viewToggle');
+        const mainGrid = document.getElementById('mainGrid');
+        const configColumn = document.getElementById('configColumn');
+        const inputsColumn = document.getElementById('inputsColumn');
+        const scoreColumn = document.getElementById('scoreColumn');
+        const scoreBreakdown = document.getElementById('scoreBreakdown');
+        const scoringModeLabel = document.getElementById('scoringModeLabel');
+        const designerModeLabel = document.getElementById('designerModeLabel');
+
+
+        function calculateScore() {
+            // --- 1. READ CONFIGURATION VALUES ---
+            const baseScore = getVal('baseScore');
+            const victoryBonus = getVal('victoryBonus');
+            const pointsPerTurn = getVal('pointsPerTurn');
+            const pointsPerPercentHealth = getVal('pointsPerPercentHealth');
+            const healthScoreCap = getVal('healthScoreCap');
+            const threatClearBonus = getVal('threatClearBonus');
+            const threatPointsPerPercent = getVal('threatPointsPerPercent');
+            const minionClearBonus = getVal('minionClearBonus');
+            const minionPointsPerPercent = getVal('minionPointsPerPercent');
+            const damagePointsPerPercent = getVal('damagePointsPerPercent');
+
+            // --- 2. READ GAME STATE VALUES ---
+            const isWin = document.getElementById('outcomeWin').classList.contains('bg-cyan-500');
+            const turns = getVal('turns');
+            const heroHPPrinted = getVal('heroHPPrinted');
+            const heroAllyHPFinal = getVal('heroAllyHPFinal');
+            const villainTotalHP = getVal('villainTotalHP');
+            const villainHPRemaining = getVal('villainHPRemaining');
+            const mainSchemeTotalThreat = getVal('mainSchemeTotalThreat');
+            const threatRemaining = getVal('threatRemaining');
+            const minionHP = getVal('minionHP');
+
+            // --- 3. PERFORM CALCULATIONS ---
+            const breakdown = {};
+
+            breakdown.base = baseScore;
+            breakdown.victory = isWin ? victoryBonus : 0;
+            breakdown.turns = -Math.abs(turns * pointsPerTurn);
+
+            // Health Score (Customizable Logic)
+            let healthScore = 0;
+            if (heroHPPrinted > 0) {
+                const healthPercentage = (heroAllyHPFinal / heroHPPrinted) * 100;
+                const cappedPercentage = Math.min(healthPercentage, healthScoreCap);
+                healthScore = cappedPercentage * pointsPerPercentHealth;
+            }
+            breakdown.health = healthScore;
+
+            const t_pool = mainSchemeTotalThreat;
+            const t_rem = threatRemaining;
+            breakdown.threatClear = (t_rem === 0 && t_pool > 0) ? threatClearBonus : 0;
+            const threatPenaltyRaw = (t_pool > 0) ? (threatPointsPerPercent * (t_rem / t_pool) * 100) : 0;
+            breakdown.threatPenalty = -Math.abs(threatPenaltyRaw);
+
+            const d_pool = villainTotalHP;
+            const m_rem = minionHP;
+            breakdown.minionClear = m_rem === 0 ? minionClearBonus : 0;
+            const minionPenaltyRaw = (d_pool > 0) ? (minionPointsPerPercent * (m_rem / d_pool) * 100) : 0;
+            breakdown.minionPenalty = -Math.abs(minionPenaltyRaw);
+            
+            const d_rem = villainHPRemaining;
+            const damagePenaltyRaw = isWin ? 0 : ((d_pool > 0) ? (damagePointsPerPercent * (d_rem / d_pool) * 100) : 0);
+            breakdown.damagePenalty = -Math.abs(damagePenaltyRaw);
+
+            // --- 4. CALCULATE FINAL SCORE ---
+            const finalScore = Object.values(breakdown).reduce((sum, val) => sum + val, 0);
+
+            // --- 5. UPDATE UI ---
+            document.getElementById('finalScore').textContent = Math.round(finalScore);
+            updateBreakdownUI(breakdown);
+        }
+        
+        function updateBreakdownUI(breakdown) {
+            const container = document.getElementById('scoreBreakdown');
+            const format = (label, value) => {
+                const val = Math.round(value);
+                const color = val >= 0 ? 'text-green-400' : 'text-red-400';
+                const sign = val >= 0 ? '+' : '';
+                return `
+                    <div class="flex justify-between items-center bg-gray-700/50 p-2 rounded-md">
+                        <span class="text-gray-300">${label}</span>
+                        <span class="font-mono font-semibold ${color}">${sign}${val}</span>
+                    </div>`;
+            };
+
+            container.innerHTML = `
+                ${format('Base Score', breakdown.base)}
+                ${format('Victory Bonus', breakdown.victory)}
+                ${format('Health Score', breakdown.health)}
+                ${format('Turn Penalty', breakdown.turns)}
+                ${format('Threat Clear Bonus', breakdown.threatClear)}
+                ${format('Threat Penalty', breakdown.threatPenalty)}
+                ${format('Minion Clear Bonus', breakdown.minionClear)}
+                ${format('Minion Penalty', breakdown.minionPenalty)}
+                ${format('Damage Penalty (Loss)', breakdown.damagePenalty)}
+            `;
+        }
+        
+        function toggleViewMode() {
+            const isDesignerMode = viewToggle.checked;
+            if (isDesignerMode) {
+                mainGrid.classList.remove('lg:grid-cols-2');
+                mainGrid.classList.add('lg:grid-cols-3');
+                configColumn.style.display = 'flex';
+                scoreBreakdown.style.display = 'block';
+                inputsColumn.classList.remove('lg:col-span-1');
+                scoreColumn.classList.remove('lg:col-span-1');
+                scoringModeLabel.classList.remove('text-white');
+                scoringModeLabel.classList.add('text-gray-400');
+                designerModeLabel.classList.add('text-white');
+                designerModeLabel.classList.remove('text-gray-400');
+            } else {
+                mainGrid.classList.remove('lg:grid-cols-3');
+                mainGrid.classList.add('lg:grid-cols-2');
+                configColumn.style.display = 'none';
+                scoreBreakdown.style.display = 'none';
+                inputsColumn.classList.add('lg:col-span-1');
+                scoreColumn.classList.add('lg:col-span-1');
+                scoringModeLabel.classList.add('text-white');
+                scoringModeLabel.classList.remove('text-gray-400');
+                designerModeLabel.classList.remove('text-white');
+                designerModeLabel.classList.add('text-gray-400');
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        allInputs.forEach(input => {
+            input.addEventListener('input', calculateScore);
+        });
+
+        outcomeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                outcomeButtons.forEach(btn => {
+                    btn.classList.remove('bg-cyan-500', 'text-white');
+                    btn.classList.add('text-gray-300');
+                });
+                button.classList.add('bg-cyan-500', 'text-white');
+                button.classList.remove('text-gray-300');
+
+                const villainHPRemainingInput = document.getElementById('villainHPRemaining');
+                if (button.id === 'outcomeWin') {
+                    villainHPRemainingInput.value = 0;
+                }
+                
+                calculateScore();
+            });
+        });
+        
+        viewToggle.addEventListener('change', toggleViewMode);
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateScore();
+            toggleViewMode(); // Set initial view based on checkbox
+        });
+
+    </script>
+</body>
+</html>
