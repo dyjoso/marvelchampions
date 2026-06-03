@@ -1,0 +1,935 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VillainTheory's "Every Villain's Best Modular Sets"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.4; /* Added for more compact text */
+        }
+        .card {
+            background-color: #1f2937; /* Slightly lighter dark gray */
+            border: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+        .select-style {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
+    <div class="container mx-auto max-w-5xl">
+        <header class="text-center mb-6 sm:mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-red-500 tracking-tight">VillainTheory's Best Modular Sets</h1>
+            <p class="text-lg sm:text-xl text-gray-400 mt-2">An alternative presentation of VillainTheory's excellent work.</p>
+        </header>
+
+        <main>
+            <div class="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center">
+                <div class="w-full md:w-1/3">
+                    <label for="campaign-select" class="block text-base font-medium text-gray-300 mb-2">Campaign:</label>
+                    <select id="campaign-select" class="select-style w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></select>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <label for="villain-select" class="block text-base font-medium text-gray-300 mb-2">Villain:</label>
+                    <select id="villain-select" class="select-style w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></select>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <label for="difficulty-select" class="block text-base font-medium text-gray-300 mb-2">Difficulty:</label>
+                    <select id="difficulty-select" class="select-style w-full bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></select>
+                </div>
+            </div>
+
+            <div id="results-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+             <div id="no-results" class="text-center py-12 text-gray-500 hidden">
+                 <p class="text-2xl font-semibold">No scenarios found.</p>
+                 <p class="text-lg">Please try adjusting your selections.</p>
+             </div>
+        </main>
+        
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Data based on Villain Theory's "Every Villain's Best Modular Sets" document.</p>
+            <p>This is an unofficial fan-made tool.</p>
+        </footer>
+    </div>
+
+    <script>
+        const scenarioData = [
+            // CORE SET - RHINO
+            { villain: "Rhino", name: "Unicorn's Horn", modulars: "Fantasy", difficulty: "+0", notes: "Mixed minions. Boss minion (Dragon).", packs: "MOJO" },
+            { villain: "Rhino", name: "DEFAULT MODULAR", modulars: "Bomb Scare", difficulty: "+0", notes: "Small minions. Thematic.", packs: "CORE" },
+            { villain: "Rhino", name: "Smash and Grab", modulars: "A Mess of Things", difficulty: "+1", notes: "Extra attack (Gang-Up). Large minion. Stuns. Thematic.", packs: "GG" },
+            { villain: "Rhino", name: "Stay Hydrated", modulars: "Hydra Patrol", difficulty: "+1", notes: "Small minions. Thematic.", packs: "RORS" },
+            { villain: "Rhino", name: "Property Damage", modulars: "Armadillo", difficulty: "+1", notes: "Toughs (makes extra use of Rhino's toughs). Large minion. Thematic.", packs: "NOVA" },
+            { villain: "Rhino", name: "Status Update", modulars: "Beasty Boys", difficulty: "+1", notes: "Status cards (makes extra use of Rhino's stuns). 2x Large minions.", packs: "HOOD" },
+            { villain: "Rhino", name: "Oops, Joined a Cult", modulars: "Clan Akkaka", difficulty: "+2", notes: "Adds threat (without affecting the main scheme). Mixed minions.", packs: "APOC" },
+            { villain: "Rhino", name: "'We are Breaking!'", modulars: "Symbiotic Strength", difficulty: "+2", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Rhino", name: "Hydra Heist", modulars: "Hydra Assault, Ransacked Armory", difficulty: "+2", notes: "Mixed minions. Attachments. Thematic.", packs: "RORS, HOOD" },
+            { villain: "Rhino", name: "Rhino's Rampage", modulars: "Sinister Assault, State of Emergency", difficulty: "+3", notes: "Large minions. Side schemes. High boost icons. Thematic.", packs: "SM, HOOD" },
+            { villain: "Rhino", name: "Sinister Swarm", modulars: "Sinisters Syndicate, Iron Spider's Sinister Six", difficulty: "+3", notes: "Mixed minions. Criminal trait interaction. Thematic.", packs: "HOOD, SP//dr" },
+            { villain: "Rhino", name: "First Rhino On The Moon", modulars: "Blue Moon, Gravitational Pull", difficulty: "+3", notes: "Anti-Rush. Teamwork. Mixed minions. Boss minion.", packs: "APOC, SHIELD" },
+            { villain: "Rhino", name: "Get Wrecked", modulars: "Super Strength, Wrecking Crew", difficulty: "+3", notes: "Steady. ATK bonus. Large minions. High boost icons. Thematic.", packs: "NEXT, HOOD" },
+            { villain: "Rhino", name: "Thanos with a Horn", modulars: "Infinity Gauntlet, Children of Thanos, The Black Order", difficulty: "+4", notes: "SOLO WARNING: The Infinity Stones will destroy the main scheme. Large minions. Status cards. ATK/SCH bonus. Impactful boost effects.", packs: "MTS, MTS, MTS" },
+            { villain: "Rhino", name: "Ultimate Rhino", modulars: "Super Strength, Sinister Assault, State of Emergency", difficulty: "+4", notes: "Steady. ATK bonus. Large minions. High boost icons. Side schemes. Thematic.", packs: "NEXT, SM, HOOD" },
+
+            // CORE SET - KLAW
+            { villain: "Klaw", name: "Guards, Guards!", modulars: "Ransacked Armory", difficulty: "-2", notes: "Gives Klaw 5x Armored Guards total. Attachments. Thematic.", packs: "HOOD" },
+            { villain: "Klaw", name: "Warped Timeline", modulars: "Temporal, Dystopian Nightmare", difficulty: "-2", notes: "Impactful boost abilities. Stuns. Sends alter-ego. Small minions. Side schemes.", packs: "KANG, APOC" },
+            { villain: "Klaw", name: "Tooth and Klaw", modulars: "Armies of Titan", difficulty: "-1", notes: "Small minions. Impactful boost abilities.", packs: "MTS" },
+            { villain: "Klaw", name: "Good Vibrations", modulars: "New Avengers, Secret Avengers", difficulty: "+0", notes: "Mixed minions. Impactful boost abilities. Teamwork. Status cards.", packs: "CW, CW" },
+            { villain: "Klaw", name: "Anti-Mutant Amplifier", modulars: "Genosha", difficulty: "+0", notes: "Steady. Mixed minions.", packs: "APOC" },
+            { villain: "Klaw", name: "DEFAULT MODULAR", modulars: "Masters of Evil", difficulty: "+0", notes: "Large minions. Impactful boost abilities.", packs: "CORE" },
+            { villain: "Klaw", name: "Sounds Like Trouble", modulars: "Sinister Syndicate", difficulty: "+1", notes: "Impactful boost abilities. Mixed minions. Thematic.", packs: "HOOD" },
+            { villain: "Klaw", name: "Arctic Monkeys", modulars: "Frost Giants", difficulty: "+1", notes: "Large minions. Sends alter-ego. Stuns.", packs: "MTS" },
+            { villain: "Klaw", name: "Oops, Joined a Cult", modulars: "Clan Akkaba", difficulty: "+2", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Klaw", name: "Boosted Boombox", modulars: "Sinister Assault, Mutant Insurrection", difficulty: "+2", notes: "High boost icons. Mixed minions.", packs: "SM, NEXT" },
+            { villain: "Klaw", name: "Vibranium Order", modulars: "Children of Thanos", difficulty: "+2", notes: "Mixed minions. Disruption. Impactful boost abilities. Adds Black Order theme.", packs: "MTS, MTS" },
+            { villain: "Klaw", name: "Soundgarden", modulars: "Black Tom Cassidy", difficulty: "+2", notes: "Anti-Rush. Small minions. Stuns. Impactful boost abilities.", packs: "NEXT" },
+            { villain: "Klaw", name: "Klaw Starts an Army", modulars: "Kree Militants", difficulty: "+2", notes: "Large minions. Overkill/piercing boost abilities.", packs: "GMW" },
+            { villain: "Klaw", name: "Klaw Starts a Band", modulars: "Band of Badoon", difficulty: "+2", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm.", packs: "GMW" },
+            { villain: "Klaw", name: "Klaw Starts a Zoo", modulars: "Menagerie Medley", difficulty: "+3", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "GMW" },
+            { villain: "Klaw", name: "Sonic Screwdriver", modulars: "Anachronauts", difficulty: "+3", notes: "Mixed minions. Impactful boost abilities (additional boost cards).", packs: "KANG" },
+            { villain: "Klaw", name: "'We Are Sound!'", modulars: "Super Strength, Symbiotic Strength", difficulty: "+3", notes: "Steady (protects 2x boost card attacks). Extra attacks. ATK bonus. Small minions. Dangerous attacks.", packs: "NEXT, SM" },
+            { villain: "Klaw", name: "Sound Crew", modulars: "Wrecking Crew, Hard Sound", difficulty: "+3", notes: "High boost icons. Additional boost cards. Large minions. Boss minion. Thematic.", packs: "HOOD, SHIELD" },
+            { villain: "Klaw", name: "Boost Card Highscore", modulars: "Anachronauts, Space Pirates, Hard Sound", difficulty: "+4", notes: "A huge amount of additional boost cards. Mixed minions. Boss minion.", packs: "KANG, GMW, SHIELD" },
+
+            // CORE SET - ULTRON
+            { villain: "Ultron", name: "New Hardware", modulars: "Military Grade", difficulty: "-2", notes: "Attachments. Thematic.", packs: "NEXT" },
+            { villain: "Ultron", name: "Batteries Not Included", modulars: "Power Drain", difficulty: "-2", notes: "Treacheries. Mills encounter deck. Thematic.", packs: "GG" },
+            { villain: "Ultron", name: "Do The Robot", modulars: "Sentinels", difficulty: "-1", notes: "Large minions. Thematic.", packs: "MG" },
+            { villain: "Ultron", name: "Anti-Mutant Tech", modulars: "Genosha", difficulty: "+0", notes: "Steady (keeps drones spawning). Mixed minions.", packs: "APOC" },
+            { villain: "Ultron", name: "3D Printed", modulars: "Celestial Tech", difficulty: "+0", notes: "Attachments.", packs: "APOC" },
+            { villain: "Ultron", name: "DEFAULT MODULAR", modulars: "Under Attack", difficulty: "+0", notes: "Anti-Ally. Surprise damage.", packs: "CORE" },
+            { villain: "Ultron", name: "Android Attacker", modulars: "Weapon Master", difficulty: "+1", notes: "Extra attacks (to spawn drones)", packs: "RORS" },
+            { villain: "Ultron", name: "Delivery Drone", modulars: "Galactic Artifacts", difficulty: "+1", notes: "Victory display side schemes. Attachments.", packs: "GMW" },
+            { villain: "Ultron", name: "Glitch in the System", modulars: "Sci-Fi", difficulty: "+2", notes: "Mixed minions. Toughness environment (deadly with drones). Thematic.", packs: "MOJO" },
+            { villain: "Ultron", name: "A.I. Hivemind", modulars: "Guerrilla Tactics", difficulty: "+3", notes: "Bonuses with multiple enemies (drones). Side schemes.", packs: "SM" },
+            { villain: "Ultron", name: "Vibranium Might", modulars: "Super Strength", difficulty: "+3", notes: "Steady (keeps drones spawning). ATK bonus. High boost icons. Thematic.", packs: "NEXT" },
+            { villain: "Ultron", name: "Ultra Ultron", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. Surge leads to more drones. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Ultron", name: "Nano-Tech Robots", modulars: "Sentinels, Future Past", difficulty: "+4", notes: "Large minions. Boss minions. Victory display. High boost icons. Nemesis interaction. Thematic.", packs: "MG, MG" },
+            { villain: "Ultron", name: "Infinity Ultron", modulars: "Infinity Gauntlet, Genosha", difficulty: "+4", notes: "Steady (keeps drones spawning). ATK/SCH bonus. Status cards. Mixed minions. Thematic.", packs: "MTS, APOC" },
+            
+            // GREEN GOBLIN - RISKY BUSINESS
+            { villain: "Risky Business", name: "DEFAULT MODULAR", modulars: "Goblin Gimmicks", difficulty: "+0", notes: "Attachments. Treacheries. Thematic.", packs: "GG" },
+            { villain: "Risky Business", name: "Criminal Enterprise", modulars: "Down to Earth, Running Interference, Ransacked Armory", difficulty: "+1", notes: "Sends alter-ego (makes Norman tougher). Small minions. Boss minion. Thematic. Medium minions. Attachments.", packs: "SM, GG, HOOD" },
+            { villain: "Risky Business", name: "Mercenary Army", modulars: "Batroc's Brigade", difficulty: "+1", notes: "Medium minions. Thematic.", packs: "SHIELD" },
+            { villain: "Risky Business", name: "Sharknado", modulars: "Menagerie Medley", difficulty: "+2", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "GMW" },
+            { villain: "Risky Business", name: "Goblin Might", modulars: "Super Strength", difficulty: "+2", notes: "Steady (keeps Goblin activating). ATK bonus. High boost icons. Thematic.", packs: "NEXT" },
+            { villain: "Risky Business", name: "Wicked Schemes", modulars: "Whispers of Paranoia, Dystopian Nightmare", difficulty: "+2", notes: "Sends alter-ego (makes Norman tougher). Nemesis interaction. Side schemes. Thematic.", packs: "SM, APOC" },
+            { villain: "Risky Business", name: "Crazy Train", modulars: "Sitcom, Telepathy", difficulty: "+2", notes: "Retaliate. Anti-Ally. Sends alter-ego (makes Norman tougher.). SCH bonus. Overkill. Obligations. Thematic.", packs: "MOJO, NEXT" },
+            { villain: "Risky Business", name: "Enchanted Forest", modulars: "Enchantress, Black Tom Cassidy", difficulty: "+3", notes: "Anti-Rush (makes Goblin tougher). Sends alter-ego. Steals allies. Mixed minions. Stuns. Quickstrike.", packs: "MTS, NEXT" },
+            { villain: "Risky Business", name: "Osborn's Thunderbolts", modulars: "Gravitational Pull, Power of the Atom", difficulty: "+4", notes: "2x Boss minions (adds pressure while villain is Norman). Surprise damage. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "Risky Business", name: "Brains AND Brawn", modulars: "Telepathy, Growing Strong", difficulty: "+4", notes: "Boss minion (adds pressure while villain is Norman). Retaliate. Anti-Ally. SCH bonus. Overkill. Sends alter-ego.", packs: "NEXT, SILK" },
+            { villain: "Risky Business", name: "New Goblin Toys", modulars: "Goblin Gear, Osborn Tech", difficulty: "+4", notes: "Extra activations. Attachments. Thematic.", packs: "SM, SM" },
+            { villain: "Risky Business", name: "Oscorp Unleashed", modulars: "Super Strength, Goblin Gear", difficulty: "+4", notes: "Steady (keeps Goblin activating). Extra activations. ATK bonus. Attachments. High boost icons. Thematic.", packs: "NEXT, SM" },
+            { villain: "Risky Business", name: "Ultimate Norman", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. High boost icons. Thematic.", packs: "SM" },
+
+            // GREEN GOBLIN - MUTAGEN FORMULA
+            { villain: "Mutagen Formula", name: "Mutant Formula", modulars: "Hope Summers, Mutant Slayers", difficulty: "-1", notes: "Adds helpful setup ally. Mixed minions. Adds mutant theme.", packs: "NEXT, NEXT" },
+            { villain: "Mutagen Formula", name: "DEFAULT MODULAR", modulars: "Goblin Gimmicks", difficulty: "+0", notes: "Attachments. Treacheries. Thematic.", packs: "GG" },
+            { villain: "Mutagen Formula", name: "Oscorp Upgrades", modulars: "Ransacked Armory", difficulty: "+1", notes: "Attachments. Thematic.", packs: "HOOD" },
+            { villain: "Mutagen Formula", name: "The Little Lost Goblin", modulars: "Fantasy", difficulty: "+1", notes: "Introduces an extra Goblin-traited minion. Mixed minions. Boss minion (Dragon).", packs: "MOJO" },
+            { villain: "Mutagen Formula", name: "Goblin Gang", modulars: "A Mess of Things", difficulty: "+1", notes: "Extra attack (Gang-Up, works well with minion swarm). Large minion. Stuns. Thematic.", packs: "GG" },
+            { villain: "Mutagen Formula", name: "Ben Reilly", modulars: "Spider-Man", difficulty: "+2", notes: "Medium minion. Thematic.", packs: "CW" },
+            { villain: "Mutagen Formula", name: "Crime Wave", modulars: "Down to Earth, City in Chaos", difficulty: "+2", notes: "Mixed minions. Sends alter-ego. Thematic.", packs: "SM, SM" },
+            { villain: "Mutagen Formula", name: "Venom Goblin At Home", modulars: "Symbiotic Strength", difficulty: "+3", notes: "Extra attacks. Dangerous attacks. Small minions. Thematic.", packs: "SM" },
+            { villain: "Mutagen Formula", name: "Crafty Goblins", modulars: "Guerrilla Tactics", difficulty: "+3", notes: "Bonuses for multiple enemies. Side schemes.", packs: "SM" },
+            { villain: "Mutagen Formula", name: "Rogues' Gallery", modulars: "Sinister Assault", difficulty: "+3", notes: "Large minions. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Mutagen Formula", name: "A State of Mayhem", modulars: "Streets of Mayhem, State of Emergency", difficulty: "+3", notes: "Side schemes. Changing environment. High boost icons. Thematic.", packs: "HOOD, HOOD" },
+            { villain: "Mutagen Formula", name: "Alien Invasion", modulars: "Band of Badoon, Menagerie Medley", difficulty: "+3", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm. Confuses.", packs: "GMW, GMW" },
+            { villain: "Mutagen Formula", name: "Goblin Gizmos", modulars: "Goblin Gimmicks, Goblin Gear", difficulty: "+3", notes: "Attachments. Extra activations. Treacheries. Thematic.", packs: "GG, SM" },
+            { villain: "Mutagen Formula", name: "Oscorp Unleashed", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Mutagen Formula", name: "New Goblin Toys", modulars: "Goblin Gear, Super Strength", difficulty: "+4", notes: "Extra activations. Attachments. Thematic.", packs: "SM, NEXT" },
+            { villain: "Mutagen Formula", name: "Ultimate Green Goblin", modulars: "Goblin Gear, Osborn Tech", difficulty: "+4", notes: "Attachments. Thematic. Extra activations. ATK bonus. High boost icons.", packs: "SM, SM" },
+            
+            // THE RISE OF RED SKULL CAMPAIGN EXPANSION - CROSSBONES
+            { villain: "Crossbones", name: "Here to Slay", modulars: "Ransacked Armory, Military Grade, Mutant Slayers", difficulty: "-2", notes: "Attachments. Medium minions. Adds mutant theme.", packs: "HOOD, NEXT, NEXT" },
+            { villain: "Crossbones", name: "DEFAULT MODULARS", modulars: "Weapon Master, Hydra Assault, Legions of Hydra", difficulty: "+0", notes: "Extra attacks. Mixed minions. Thematic.", packs: "RORS, RORS, CORE" },
+            { villain: "Crossbones", name: "Alternative Hydration", modulars: "Weapon Master, Hydra Patrol, Captain America's Nemesis", difficulty: "+1", notes: "5x Hydra Soldiers led by Zemo. Extra attacks. Anti-Rush. Thematic.", packs: "RORS, RORS, CAP. A." },
+            { villain: "Crossbones", name: "Mercenary Alliance", modulars: "Ransacked Armory, Batroc's Brigade, The Leaper", difficulty: "+1", notes: "5x Medium mercenary-traited minions. Boss minion. Discarding. Attachments. Thematic.", packs: "HOOD, SHIELD, SHIELD" },
+            { villain: "Crossbones", name: "Big Game Hunter", modulars: "Under Attack, Hounds, Frost Giants", difficulty: "+1", notes: "Anti-Ally. Surprise damage. Sends alter-ego + brings you back. Quickstrike. Mixed minions.", packs: "CORE, APOC, MTS" },
+            { villain: "Crossbones", name: "Don't Fear the Reaver", modulars: "Weapon Master, Reavers, Deathstrike", difficulty: "+2", notes: "Extra attacks. Mixed minions. Attachments. Teamwork. Thematic. (Crossbones looks like a Reaver).", packs: "RORS, ROGUE, WOLV" },
+            { villain: "Crossbones", name: "Weaponless", modulars: "Super Strength, Legions of Hydra, Hydra Patrol", difficulty: "+3", notes: "Steady. No added weapons. Anti-Rush. ATK bonus. Mixed minions. (What if Crossbones took a super serum?)", packs: "NEXT, CORE, RORS" },
+            { villain: "Crossbones", name: "I Like Big Boosts", modulars: "Extreme Risk, Wrecking Crew, Black Order", difficulty: "+4", notes: "High boost icons. Large minions. Boss minion.", packs: "SHURI, HOOD, MTS" },
+            { villain: "Crossbones", name: "Anti-Rush Thunderbolts", modulars: "Extreme Risk, Whiteout, Blue Moon", difficulty: "+4", notes: "Anti-Rush. Teamwork. Mixed minions. Boss minion. Stuns.", packs: "SHURI, WINTER, APOC" },
+            { villain: "Crossbones", name: "Spider Glider Rider", modulars: "Goblin Gear, Osborn Tech, Sinister Assault", difficulty: "+4", notes: "Attachments. High boost icons. Extra activations. Large minions. Adds Spider-Man theme.", packs: "SM, SM, SM" },
+
+            // THE RISE OF RED SKULL CAMPAIGN EXPANSION - ABSORBING MAN
+            { villain: "Absorbing Man", name: "Man on the Moon", modulars: "Blue Moon", difficulty: "+0", notes: "Anti-Rush. Teamwork. Mixed minions.", packs: "APOC" },
+            { villain: "Absorbing Man", name: "Part Of The Team", modulars: "Masters of Evil", difficulty: "+0", notes: "Large minions. Thematic. (Absorbing Man has been a member.)", packs: "CORE" },
+            { villain: "Absorbing Man", name: "DEFAULT MODULAR", modulars: "Hydra Patrol", difficulty: "+0", notes: "Small minions. Leads to environment effects triggering. Adds Hydra theme.", packs: "RORS" },
+            { villain: "Absorbing Man", name: "Lightmasters of Evil", modulars: "Wrecking Crew, She-Hulk's Nemesis Set", difficulty: "+1", notes: "Large minions. High boost icons. Thematic.", packs: "HOOD, CORE" },
+            { villain: "Absorbing Man", name: "Sharknado", modulars: "Menagerie Medley", difficulty: "+2", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "GMW" },
+            { villain: "Absorbing Man", name: "The Hydra Elite", modulars: "Captain America's Nemesis, Legions of Hydra", difficulty: "+3", notes: "5x Hydra Soldiers lead to more environment cards (when defeated). Anti-Rush. Adds Hydra theme.", packs: "CAP. A., CORE" },
+            { villain: "Absorbing Man", name: "To Infinity and Beyond", modulars: "Infinity Gauntlet", difficulty: "+3", notes: "No minions (Space Stone resets his deck + causes acceleration token). Status cards. ATK/SCH bonus. Smaller encounter deck = his environment cards trigger more often.", packs: "MTS" },
+            { villain: "Absorbing Man", name: "Ice, Ice, Baby", modulars: "Whiteout, Frost Giants", difficulty: "+3", notes: "Large minions. Boss minion. Stuns. Sends alter-ego. (Relates to Ice trait.)", packs: "WINTER, MTS" },
+            { villain: "Absorbing Man", name: "Knock On Wood", modulars: "Super Strength, Black Tom Cassidy", difficulty: "+3", notes: "Steady. Anti-Rush. Mixed minions. Stuns. Quickstrike. (Relates to Wood trait).", packs: "NEXT, NEXT" },
+            { villain: "Absorbing Man", name: "Like A Rolling Stone", modulars: "Gravitational Pull, Running Interference", difficulty: "+3", notes: "Two boss minions. Sends alter-ego. (Tombstone/Moonstone relate to Stone trait.)", packs: "SHIELD, GG" },
+            { villain: "Absorbing Man", name: "Pedal to the Metal", modulars: "Supersonic, Sentinels", difficulty: "+3", notes: "Boss minion. Large minions. Overkill. (Relates to Metal trait.)", packs: "SHIELD, MG" },
+            { villain: "Absorbing Man", name: "Technically Gifted", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. Surge leads to environment effects triggering. High boost icons.", packs: "SM" },
+            { villain: "Absorbing Man", name: "Friends From Mars", modulars: "Badoon Headhunter", difficulty: "+4", notes: "Two large minions. Surge leads to more environment effects triggering.", packs: "GMW" },
+
+            // THE RISE OF RED SKULL CAMPAIGN EXPANSION - TASKMASTER
+            { villain: "Taskmaster", name: "Trickmaster", modulars: "Trickster Magic", difficulty: "-2", notes: "Large minions. Adds more allies to be rescued.", packs: "TT" },
+            { villain: "Taskmaster", name: "Shifting Loyalties", modulars: "S.H.I.E.L.D.", difficulty: "+0", notes: "Small minions. Vulnerable. Anti-S.H.I.E.L.D.. Thematic.", packs: "SHIELD" },
+            { villain: "Taskmaster", name: "Α.Ι.Μ.", modulars: "A.I.M. Abduction", difficulty: "+0", notes: "Captures allies. Small minions. Thematic.", packs: "SHIELD" },
+            { villain: "Taskmaster", name: "DEFAULT MODULAR", modulars: "Weapon Master", difficulty: "+0", notes: "Extra attacks. Attachments. Thematic.", packs: "RORS" },
+            { villain: "Taskmaster", name: "Thunderbolts #1", modulars: "Dangerous Recruits, Thunderbolts", difficulty: "+1", notes: "When Revealed abilities. Impactful boost abilities. Thematic.", packs: "CW, SS" },
+            { villain: "Taskmaster", name: "Master of the Nine Realms", modulars: "Enchantress, Frost Giants", difficulty: "+2", notes: "Sends alter-ego (for main scheme ability). Anti-Rush. Large minions. Steals allies. Adds Asgard theme.", packs: "MTS, MTS" },
+            { villain: "Taskmaster", name: "Taskmadness", modulars: "Telepathy, Sitcom", difficulty: "+2", notes: "Sends alter-ego (for main scheme ability). Retaliate. Anti-Ally. SCH bonus. Overkill.", packs: "NEXT, MOJO" },
+            { villain: "Taskmaster", name: "Boostmaster", modulars: "Sinister Assault", difficulty: "+2", notes: "High boost icons (for main scheme ability). Large minions.", packs: "SM" },
+            { villain: "Taskmaster", name: "Crime-Master", modulars: "Down to Earth, Whispers of Paranoia", difficulty: "+2", notes: "Sends alter-ego (for main scheme ability). Small minions. Nemesis interaction.", packs: "SM, SM" },
+            { villain: "Taskmaster", name: "Stickmaster", modulars: "Extreme Risk", difficulty: "+3", notes: "Boss minion. High boost icons.", packs: "SHURI" },
+            { villain: "Taskmaster", name: "Training Hydra", modulars: "Legions of Hydra", difficulty: "+3", notes: "Mixed minions. Thematic.", packs: "CORE" },
+            { villain: "Taskmaster", name: "Thunderbolts #2:", modulars: "Pale Little Spider, Techno", difficulty: "+4", notes: "2x. Boss minions. Piercing. Damage reflect. Thematic.", packs: "SHIELD, FALCON" },
+            { villain: "Taskmaster", name: "Hyde and Seek", modulars: "Mister Hyde, Goblin Gear", difficulty: "+4", notes: "Boss minion. Attachments. Extra activations. Nowhere is safe.", packs: "HOOD, SM" },
+
+            // THE RISE OF RED SKILL CAMPAIGN EXPANSION - ZOLA
+            { villain: "Zola", name: "Hydra Distraction", modulars: "Bomb Scare", difficulty: "-2", notes: "Small minions. Thematic.", packs: "CORE" },
+            { villain: "Zola", name: "New Upgrades", modulars: "Ransacked Armory", difficulty: "-2", notes: "Attachments. Thematic.", packs: "HOOD" },
+            { villain: "Zola", name: "Cosmic Guards", modulars: "Blue Moon", difficulty: "+0", notes: "Anti-Rush. Teamwork. Mixed minions.", packs: "APOC" },
+            { villain: "Zola", name: "Armor Plating", modulars: "Armadillo", difficulty: "+0", notes: "Toughs. Large minion.", packs: "NOVA" },
+            { villain: "Zola", name: "Doctor Frankenstein", modulars: "Running Interference", difficulty: "+0", notes: "Boss minion. Sends alter-ego. Attachments. Adds horror theme.", packs: "GG" },
+            { villain: "Zola", name: "DEFAULT MODULAR", modulars: "Under Attack", difficulty: "+0", notes: "Anti-Ally. Area damage.", packs: "CORE" },
+            { villain: "Zola", name: "Super Swarm", modulars: "Band of Badoon", difficulty: "+1", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm.", packs: "GMW" },
+            { villain: "Zola", name: "Experiment Gone Wrong", modulars: "Sauron", difficulty: "+2", notes: "Large minion.", packs: "ICEMAN" },
+            { villain: "Zola", name: "Mutate Teamwork", modulars: "Guerrilla Tactics", difficulty: "+3", notes: "Bonuses for multiple enemies (minions). Side schemes.", packs: "SM" },
+            { villain: "Zola", name: "Tech Convention", modulars: "Techno", difficulty: "+3", notes: "Boss minion. Piercing. Attachments. Thematic.", packs: "FALCON" },
+            { villain: "Zola", name: "Arkham Horror", modulars: "Horror", difficulty: "+3", notes: "Mixed minions. Quickstrike environment. Adds horror theme.", packs: "MOJO" },
+            { villain: "Zola", name: "Don't Fear the Reaver", modulars: "Reavers", difficulty: "+4", notes: "Minions with tech attachments. Main scheme ability helps trigger Teamwork.", packs: "ROGUE" },
+            { villain: "Zola", name: "Doomsday Zola", modulars: "The Doomsday Chair", difficulty: "+4", notes: "Large minion. Attachments.", packs: "CORE" },
+            { villain: "Zola", name: "Doctor Jekyll", modulars: "Mister Hyde", difficulty: "+4", notes: "Boss minion. Adds horror theme.", packs: "HOOD" },
+            { villain: "Zola", name: "NanoTechnology-", modulars: "Future Past", difficulty: "+4", notes: "Boss minions. Victory display. High boost icons. Nemesis interaction. Nano-Tech attachment interaction.", packs: "MG" },
+
+            // THE RISE OF RED SKULL CAMPAIGN EXPANSION - RED SKULL
+            { villain: "Red Skull", name: "Ride the Lightning", modulars: "Power Drain, Zzzax", difficulty: "-2", notes: "Treacheries. Mills encounter deck. Punishes energy resources.", packs: "GG, IRONHRT" },
+            { villain: "Red Skull", name: "Dehydration", modulars: "Bomb Scare, Hydra Assault", difficulty: "-2", notes: "Small minions. Extra attacks. Thematic.", packs: "CORE, RORS" },
+            { villain: "Red Skull", name: "Rehydration", modulars: "Winter Soldier's Nemesis, Black Widow's Nemesis", difficulty: "+0", notes: "Mixed minions. Adds Crossbones and Taskmaster. Thematic.", packs: "WINTER, WIDOW" },
+            { villain: "Red Skull", name: "DEFAULT MODULARS", modulars: "Hydra Assault, Hydra Patrol", difficulty: "+0", notes: "Small minions. Extra attacks. Thematic.", packs: "RORS, RORS" },
+            { villain: "Red Skull", name: "Caught Red-Handed", modulars: "Sinister Syndicate, Iron Spider's Sinister Six", difficulty: "+1", notes: "Mixed minions. Crime trait interaction. Impactful boost effects.", packs: "HOOD, SP//dr" },
+            { villain: "Red Skull", name: "Hellfire Takeover", modulars: "Hellfire, Shadowcat's Nemesis", difficulty: "+2", notes: "Mixed minions. Hellfire trait interaction.", packs: "MAGNTO, MG" },
+            { villain: "Red Skull", name: "Oops, Formed a Cult", modulars: "Clan Akkaba, Galactic Artifacts", difficulty: "+2", notes: "Mixed minions. Adds threat. Attachments. Permanent side scheme gives +1 ATK all game. Victory display side schemes.", packs: "APOC, GMW" },
+            { villain: "Red Skull", name: "New World Black Order", modulars: "Armies of Titan, Children of Thanos", difficulty: "+3", notes: "Mixed minions. Impactful boost abilities. Adds Black Order theme.", packs: "MTS, MTS" },
+            { villain: "Red Skull", name: "Ghostbusters", modulars: "Guerrilla Tactics, Menagerie Medley", difficulty: "+4", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Bonuses for multiple enemies. Side schemes.", packs: "SM, GMW" },
+            { villain: "Red Skull", name: "Mutant Mayhem", modulars: "Infinites, Genosha", difficulty: "+4", notes: "Steady. Anti-Ally (defending). Mixed minions. Two permanent side schemes give villain +2 ATK all game. Adds threat.", packs: "APOC, APOC" },
+            { villain: "Red Skull", name: "Space Heist", modulars: "State of Emergency, Blue Moon", difficulty: "+4", notes: "Adds difficult side schemes. Anti-Rush. Teamwork. Mixed minions.", packs: "HOOD, APOC" },
+            { villain: "Red Skull", name: "A Red Skull in Time", modulars: "Master of Time, Anachronauts", difficulty: "+4", notes: "Adds difficult side schemes. Mixed minions. Impactful boost abilities. Adds time theme.", packs: "KANG, KANG" },
+            { villain: "Red Skull", name: "Overhydration", modulars: "Legions of Hydra, Hydra Patrol", difficulty: "+4", notes: "Adds difficult side schemes. Mixed minions. Anti-Rush. Thematic.", packs: "CORE, RORS" },
+            { villain: "Red Skull", name: "Legions of Doom", modulars: "Legions of Hydra, The Doomsday Chair", difficulty: "+4", notes: "Adds difficult side schemes. Mixed minions. Attachments....Good luck!", packs: "CORE, CORE" }, 
+
+            // THE GALAXY'S MOST WANTED CAMPAIGN EXPANSION - BROTHERHOOD OF BADOON (DRANG)
+            { villain: "Brotherhood of Badoon (Drang)", name: "Bounty Hunters", modulars: "Mutant Slayers", difficulty: "-2", notes: "Medium minions.", packs: "NEXT" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Space Oddity", modulars: "Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon).", packs: "MOJO" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Kree Reinforcements \"Kree-inforcements\"", modulars: "Kree Militants", difficulty: "+0", notes: "Large minions. Overkill/piercing boost abilities.", packs: "GMW" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Maximum Firepower", modulars: "Frost Giants, Sitcom", difficulty: "+0", notes: "Sends alter-ego (helps charge Badoon Ship). Large minions. Obligations.", packs: "MTS, MOJO" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Power of the Sun", modulars: "Sinister Assault", difficulty: "+0", notes: "Large minions. High boost icons.", packs: "SM" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Side Scheme Wormhole", modulars: "Galactic Artifacts", difficulty: "+0", notes: "Many side schemes. Attachments. Does not add minions. Thematic.", packs: "GMW" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "DEFAULT MODULAR", modulars: "Band of Badoon", difficulty: "+0", notes: "Mixed minions. Surprise damage. Swarm. Badoon trait interaction. Thematic.", packs: "GMW" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Cosmic Creatures", modulars: "Menagerie Medley", difficulty: "+1", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Thematic.", packs: "GMW" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Taxi to Asteroid-M", modulars: "Acolytes", difficulty: "+1", notes: "Mixed minions. Teamwork.", packs: "MG" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Gorram Reavers", modulars: "Reavers", difficulty: "+2", notes: "Mixed minions. Teamwork.", packs: "ROGUE" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Brotherhood of the Moon", modulars: "Blue Moon, Gravitational Pull", difficulty: "+3", notes: "Anti-Rush. Mixed minions. Teamwork. Boss minion.", packs: "APOC, SHIELD" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Badoon Platoon", modulars: "Band of Badoon, Badoon Headhunter", difficulty: "+4", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm. Thematic.", packs: "GMW, GMW" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Crashed On Dagobah", modulars: "Telepathy, Black Tom Cassidy", difficulty: "+4", notes: "Retaliate. Anti-Ally. Anti-Rush. SCH bonus. Overkill. Stuns. Small minions. Quickstrike.", packs: "NEXT, NEXT" },
+            { villain: "Brotherhood of Badoon (Drang)", name: "Infinity Drang", modulars: "Infinity Gauntlet, Genosha", difficulty: "+4", notes: "Steady. Status cards. ATK/SCH bonus. Mixed minions.", packs: "MTS, APOC" },
+
+            // THE GALAXY'S MOST WANTED CAMPAIGN EXPANSION - INFILTRATE THE MUSEUM (COLLECTOR #1)
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Goblin Museum", modulars: "Goblin Gimmicks", difficulty: "-2", notes: "Attachments. Treacheries.", packs: "GG" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Jump to Lightspeed", modulars: "Ship Command, Blue Moon", difficulty: "-2", notes: "Anti-Rush. Milano helps remove cards from The Collection. Teamwork. Thematic.", packs: "GMW, APOC" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "A Cheap Victory", modulars: "Scientist Supreme", difficulty: "-2", notes: "Vulnerable. 2x Large minions. Minions go to the victory display, not The Collection.", packs: "APOCS" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Table For Two", modulars: "Science, A.I.M.", difficulty: "-1", notes: "Small minions. Minions enter play two at a time, filling The Collection.", packs: "SHIELD" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Sticky Fingers", modulars: "Sinister Syndicate", difficulty: "-1", notes: "Medium minions. Impactful boost effects. Sends more cards to The Collection.", packs: "HOOD" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Thanos Daycare", modulars: "Children of Thanos", difficulty: "+0", notes: "Large minions. Impactful boost abilities. Sends more cards to The Collection. WARNING: Collector collects his own Infinity Stones.", packs: "MTS" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Thief of Time", modulars: "Anachronauts", difficulty: "+0", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "DEFAULT MODULAR", modulars: "Menagerie Medley", difficulty: "+0", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities (leads to filling The Collection). Confuses. Thematic.", packs: "GMW" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Infiltrate the Deck", modulars: "Mystique", difficulty: "+2", notes: "Boss minion. Puts cards in your deck.", packs: "MG" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Tricks Up His Sleeve", modulars: "Brothers Grimm", difficulty: "+2", notes: "Large minion. Very few total minions.", packs: "HOOD" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "Badoon Muscle", modulars: "Super Strength, Band of Badoon", difficulty: "+3", notes: "Steady. ATK bonus. Mixed minions. Surprise damage. Sends cards to the Collection. Swarm. Thematic.", packs: "NEXT, GMW" },
+            { villain: "Infiltrate the Museum (Collector #1)", name: "The Special Hell", modulars: "Infinity Gauntlet, Osborn Tech", difficulty: "+4", notes: "Status cards. ATK/SCH bonus. Only one minion total (Space Stone often resets whole deck). Attachments fill The Collection. High boost icons.", packs: "MTS, SM" },
+
+            // THE GALAXY'S MOST WANTED CAMPAIGN EXPANSION - ESCAPE THE MUSEUM (COLLECTOR #2)
+            { villain: "Escape the Museum (Collector #2)", name: "Paint It Black", modulars: "Armies of Titan, Black Order", difficulty: "-2", notes: "Mixed minions. Black Order trait interaction.", packs: "MTS, MTS" },
+            { villain: "Escape the Museum (Collector #2)", name: "Space Police", modulars: "Genosha", difficulty: "-1", notes: "Steady. Mixed minions.", packs: "APOC" },
+            { villain: "Escape the Museum (Collector #2)", name: "Oops, Collected a Cult", modulars: "Clan Akkaba", difficulty: "-1", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Escape the Museum (Collector #2)", name: "Freeze!", modulars: "Frost Giants", difficulty: "-1", notes: "Sends alter-ego. Large minions.", packs: "MTS" },
+            { villain: "Escape the Museum (Collector #2)", name: "Gene Pool Party", modulars: "Infinites", difficulty: "-1", notes: "Anti-Ally (defending). Small minions.", packs: "APOC" },
+            { villain: "Escape the Museum (Collector #2)", name: "Running Scared", modulars: "Hounds, Dystopian Nightmare", difficulty: "-1", notes: "Small minions. Sends alter-ego + pulls you back. Quickstrike.", packs: "APOC, APOC" },
+            { villain: "Escape the Museum (Collector #2)", name: "Kree-ative Solution", modulars: "Kree Militants", difficulty: "+0", notes: "Large minions. Overkill/piercing boost abilities. Thematic.", packs: "GMW" },
+            { villain: "Escape the Museum (Collector #2)", name: "Museum Helpers", modulars: "Acolytes", difficulty: "+0", notes: "Mixed minions. Teamwork.", packs: "MG" },
+            { villain: "Escape the Museum (Collector #2)", name: "DEFAULT MODULAR", modulars: "Menagerie Medley", difficulty: "+0", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Thematic.", packs: "GMW" },
+            { villain: "Escape the Museum (Collector #2)", name: "Stolen Time", modulars: "Anachronauts", difficulty: "+1", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Escape the Museum (Collector #2)", name: "Stay Hydrated", modulars: "Legions of Hydra", difficulty: "+2", notes: "Mixed minions.", packs: "CORE" },
+            { villain: "Escape the Museum (Collector #2)", name: "One Step Ahead", modulars: "Telepathy", difficulty: "+2", notes: "Retaliate. Anti-Ally. SCH bonus. Overkill. Sends alter-ego.", packs: "NEXT" },
+            { villain: "Escape the Museum (Collector #2)", name: "Under Arrest", modulars: "S.H.I.E.L.D., Pale Little Spider", difficulty: "+3", notes: "Small minions. Boss minion. Vulnerable. Patrol. Damage reflect. Anti-S.H.I.E.L.D.", packs: "SHIELD, SHIELD" },
+            { villain: "Escape the Museum (Collector #2)", name: "A Seat on the Council", modulars: "The Doomsday Chair", difficulty: "+4", notes: "Large minion. Attachments.", packs: "CORE" },
+
+            // THE GALAXY'S MOST WANTED CAMPAIGN EXPANSION - NEBULA
+            { villain: "Nebula", name: "Bounty Hunters", modulars: "Mutant Slayers", difficulty: "-2", notes: "Mixed minions.", packs: "NEXT" },
+            { villain: "Nebula", name: "Cosmic Warrior", modulars: "Armies of Titan, Celestial Tech", difficulty: "-2", notes: "Small minions. Impactful boost abilities. Attachments. Thematic.", packs: "MTS, APOC" },
+            { villain: "Nebula", name: "Fly Me to the Moon", modulars: "Blue Moon", difficulty: "-1", notes: "Anti-Rush. Teamwork. Mixed minions.", packs: "APOC" },
+            { villain: "Nebula", name: "Daughter of Thanos", modulars: "Black Order, Children of Thanos", difficulty: "-1", notes: "Large minions. Black Order trait interaction. Thematic.", packs: "MTS, MTS" },
+            { villain: "Nebula", name: "On Loan to Ronan", modulars: "Kree Militants", difficulty: "-1", notes: "Large minions. Overkill/piercing boost abilities. Thematic.", packs: "GMW" },
+            { villain: "Nebula", name: "The Space Police", modulars: "Genosha", difficulty: "+0", notes: "Steady (keeps Techniques triggering). Mixed minions.", packs: "APOC" },
+            { villain: "Nebula", name: "'We Are Surging!'", modulars: "Symbiotic Strength", difficulty: "+0", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Nebula", name: "DEFAULT MODULAR", modulars: "Space Pirates", difficulty: "+0", notes: "Small minions. Quickstrike. Card removal. Impactful boost abilities (additional boost cards find more Techniques). Thematic.", packs: "GMW" },
+            { villain: "Nebula", name: "Technique Time Warp", modulars: "Anachronauts", difficulty: "+1", notes: "Mixed minions. Impactful boost abilities (additional boost cards find more Techniques).", packs: "KANG" },
+            { villain: "Nebula", name: "Build-A-Groot", modulars: "Super Strength, Black Tom Cassidy", difficulty: "+2", notes: "Steady (keeps Techniques triggering). Anti-Rush. ATK bonus. Small minions. Quickstrike. Stuns.", packs: "NEXT, NEXT" },
+            { villain: "Nebula", name: "Usurped Throne", modulars: "Infinity Gauntlet, Kree Fanatic", difficulty: "+4", notes: "Steady. ATK/SCH boost.Status cards. Boss minion. Impactful boost abilities.", packs: "MTS, PRINT" },
+
+            // THE GALAXY'S MOST WANTED CAMPAIGN EXPANSION - RONAN THE ACCUSER
+            { villain: "Ronan the Accuser", name: "Ronan the Merciful", modulars: "Goblin Gimmicks, Mutant Slayers, Hope Summers", difficulty: "-3", notes: "Medium minions. Attachments. Helpful setup ally.", packs: "GG, NEXT, NEXT" },
+            { villain: "Ronan the Accuser", name: "Kree Sentries", modulars: "Sentinels, Zero Tolerance", difficulty: "-2", notes: "Mixed minions. Sentinel trait interaction. Thematic.", packs: "MG, MG" },
+            { villain: "Ronan the Accuser", name: "Warhammer 40K", modulars: "Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon).", packs: "MOJO" },
+            { villain: "Ronan the Accuser", name: "'We Are Conquering!'", modulars: "Symbiotic Strength", difficulty: "+0", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Ronan the Accuser", name: "The Next Generation", modulars: "Acolytes", difficulty: "+0", notes: "Mixed minions. Teamwork.", packs: "MG" },
+            { villain: "Ronan the Accuser", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+0", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Ronan the Accuser", name: "DEFAULT MODULAR", modulars: "Kree Militants", difficulty: "+0", notes: "Large minions. Overkill/piercing boost abilities. Thematic.", packs: "GMW" },
+            { villain: "Ronan the Accuser", name: "Accuse-onauts", modulars: "Anachronauts", difficulty: "+2", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Ronan the Accuser", name: "Kree Supremacy", modulars: "Kree Militants, Kree Fanatic", difficulty: "+3", notes: "Extra attacks. Large minions. Overkill/piercing boost effects.", packs: "GMW, PRINT" },
+            { villain: "Ronan the Accuser", name: "Infinity Ronan", modulars: "Infinity Gauntlet, Super Strength, Kree Militants", difficulty: "+4", notes: "Steady. ATK/SCH boost. Status cards. Large minions. Overkill/piercing boost abilities. Thematic.", packs: "MTS, NEXT, GMW" },
+
+            // THE MAD TITAN'S SHADOW CAMPAIGN EXPANSION - EBONY MAW
+            { villain: "Ebony Maw", name: "A Wizard is Never Early", modulars: "Galactic Artifacts, Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon). Victory display side schemes. Attachments.", packs: "GMW, MOJO" },
+            { villain: "Ebony Maw", name: "Master of Puppets", modulars: "Trickster Magic, Shadow King", difficulty: "-1", notes: "Large minions. Gives allies. Steals allies. Thematic.", packs: "TT, STORM" },
+            { villain: "Ebony Maw", name: "DEFAULT MODULARS", modulars: "Armies of Titan, Children of Thanos", difficulty: "+0", notes: "Mixed minions. Impactful boost abilities. Thematic.", packs: "MTS, MTS" },
+            { villain: "Ebony Maw", name: "Forbidden Sorcery", modulars: "Legions of Hel, Horror", difficulty: "+1", notes: "Mixed minions. Quickstrike environment. Thematic.", packs: "MTS, MOJO" },
+            { villain: "Ebony Maw", name: "Conjured Creatures", modulars: "Temporal, Menagerie Medley", difficulty: "+1", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Status cards.", packs: "KANG, GMW" },
+            { villain: "Ebony Maw", name: "New Followers", modulars: "Acolytes, Celestial Tech", difficulty: "+1", notes: "Mixed minions. Teamwork. Attachments.", packs: "MG, APOC" },
+            { villain: "Ebony Maw", name: "Ancient Magic", modulars: "Clan Akkaba, Personal Nightmare", difficulty: "+1", notes: "Mixed minions. Adds threat. Huge side scheme. Discards. Thematic.", packs: "APOC, SM" },
+            { villain: "Ebony Maw", name: "Insidious Whispers", modulars: "Enchantress, Whispers of Paranoia", difficulty: "+1", notes: "Anti-Rush. Sends alter-ego. Steals allies. Nemesis interaction. Thematic.", packs: "MTS, SM" },
+            { villain: "Ebony Maw", name: "Emperor Palpatine", modulars: "Telepathy, Zzzax, Power Drain", difficulty: "+1", notes: "Retaliate. Anti-Ally. SCH bonus. Treacheries. Mills encounter deck. Punishes energy resources.", packs: "NEXT, IRONHRT, GG" },
+            { villain: "Ebony Maw", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+2", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Ebony Maw", name: "Warcaster", modulars: "Genosha, Under Attack", difficulty: "+2", notes: "Steady. Anti-Ally. Surprise damage. Mixed minions.", packs: "APOC, CORE" },
+            { villain: "Ebony Maw", name: "Dark Side of the Moon", modulars: "Extreme Risk, Blue Moon", difficulty: "+3", notes: "Anti-Rush. Teamwork. Mixed minions. Boss minion..", packs: "SHURI, APOC" },
+            { villain: "Ebony Maw", name: "'We Are Strong!'", modulars: "Super Strength, Symbiotic Strength", difficulty: "+3", notes: "Steady. ATK boost. Extra attacks. Dangerous attacks. Small minions.", packs: "NEXT, SM" },
+            { villain: "Ebony Maw", name: "Infinite Magic", modulars: "Infinity Gauntlet, Brothers Grimm, Genosha", difficulty: "+4", notes: "Status cards. ATK/SCH bonus. Mixed minions. Attachments.", packs: "MTS, HOOD, APOC" },
+
+            // THE MAD TITAN'S SHADOW CAMPAIGN EXPANSION - TOWER DEFENSE (PROXIMA/CORVUS)
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Mad Titan's Army", modulars: "Armies of Titan, Black Order", difficulty: "+0", notes: "Mixed minions. Black order interaction. Thematic.", packs: "MTS, MTS" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "DEFAULT MODULAR", modulars: "Armies of Titan", difficulty: "+0", notes: "Small minions. Thematic.", packs: "MTS" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "The Wrong Tower", modulars: "Genosha", difficulty: "+1", notes: "Steady. Mixed minions.", packs: "APOC" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "The Boys Are Back In Town", modulars: "Beasty Boys, Nasty Boys", difficulty: "+1", notes: "Mixed minions. Status cards. Teamwork.", packs: "HOOD, NEXT" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Oops, Joined a Cult", modulars: "Clan Akkaba", difficulty: "+1", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "'We are Plural!'", modulars: "Symbiotic Strength", difficulty: "+1", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+1", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Proxima's New Genes", modulars: "Infinites", difficulty: "+1", notes: "Anti-Ally (defending). Small minions.", packs: "APOC" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Corvus Starts a Band", modulars: "Band of Badoon", difficulty: "+2", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm.", packs: "GMW" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Anti-Mutant Army", modulars: "Infinites, Genosha", difficulty: "+2", notes: "Steady. Anti-Ally (defending). Mixed minions. Adds threat.", packs: "APOC, APOC" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "The Perfect Couple", modulars: "Guerrilla Tactics", difficulty: "+3", notes: "Bonuses for multiple enemies. Side schemes. Thematic.", packs: "SM" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Tower of Pain", modulars: "Pale Little Spider, Legions of Hydra", difficulty: "+4", notes: "Mixed minions. Boss minion.. Damage reflect.", packs: "SHIELD, CORE" },
+            { villain: "Tower Defense (Proxima/Corvus)", name: "Boost Card Bonanza", modulars: "Hard Sound, Anachronauts", difficulty: "+4", notes: "Mixed minions. Boss minion. Additional boost cards.", packs: "SHIELD, KANG" },
+
+            // THE MAD TITAN'S SHADOW CAMPAIGN EXPANSION - THANOS
+            { villain: "Thanos", name: "The Reality Stone", modulars: "Temporal, Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon). Stuns.", packs: "KANG, MOJO" },
+            { villain: "Thanos", name: "Someone to Stun", modulars: "Scientist Supreme, S.H.I.E.L.D.", difficulty: "-1", notes: "Vulnerable. Mixed minions. Anti-S.H.I.E.L.D.", packs: "SHIELD, SHIELD" },
+            { villain: "Thanos", name: "Space Stone Special", modulars: "Dark Riders, Mutant Insurrection", difficulty: "+0", notes: "Mixed minions. Minions attack abilities (perfect for the Space Stone). Teamwork.", packs: "APOC, NEXT" },
+            { villain: "Thanos", name: "New Black Order", modulars: "Acolytes, Celestial Tech", difficulty: "+0", notes: "Mixed minions. Teamwork. Attachments.", packs: "MG, APOC" },
+            { villain: "Thanos", name: "DEFAULT MODULARS", modulars: "Black Order, Children of Thanos", difficulty: "+0", notes: "Large minions. Black Order trait interaction. Thematic.", packs: "MTS, MTS" },
+            { villain: "Thanos", name: "The Thanos Simulation", modulars: "Sci-Fi, Power Drain", difficulty: "+1", notes: "Mixed minions. Discards. Toughness environment.", packs: "MOJO, GG" },
+            { villain: "Thanos", name: "Galactic Armies", modulars: "Armies of Titan, Band of Badoon", difficulty: "+2", notes: "Mixed minions. Swarm. Impactful boost abilities. Thematic.", packs: "MTS, GMW" },
+            { villain: "Thanos", name: "Infinite Infinites", modulars: "Infinites, Celestial Tech", difficulty: "+2", notes: "Anti-Ally (defending). Small minions. Attachments.", packs: "APOC, APOC" },
+            { villain: "Thanos", name: "'We Are Inevitable!'", modulars: "Symbiotic Strength, Venom's Nemesis Set", difficulty: "+2", notes: "Extra attacks. Small minions. Dangerous attacks. Adds Symbiote theme.", packs: "SM, VENOM" },
+            { villain: "Thanos", name: "Oops, Took Over Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+2", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Thanos", name: "Ronan's Forces", modulars: "Kree Militants, Under Attack", difficulty: "+2", notes: "Anti-Ally. Overkill/piercing boost abilities. Large minions. Surprise damage. Thematic..", packs: "GMW, CORE" },
+            { villain: "Thanos", name: "Rip Up Your Deck", modulars: "Space Pirates, Dystopian Nightmare", difficulty: "+2", notes: "Card removal. Sends alter-ego. Small minions. Quickstrike. Additional boost cards. Side schemes.", packs: "GMW, APOC" },
+            { villain: "Thanos", name: "The Spoils of War", modulars: "Menagerie Medley, Galactic Artifacts", difficulty: "+3", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Side Schemes. Attachments.", packs: "GMW, GMW" },
+            { villain: "Thanos", name: "Super Thanos", modulars: "Super Strength, Flight, Telepathy", difficulty: "+4", notes: "Overkill. Retaliate. Steady. Anti-Ally. ATK/SCH bonuses. Overkill/piercing. Pain. Thematic.", packs: "NEXT, NEXT, NEXT" },
+
+            // THE MAD TITAN'S SHADOW CAMPAIGN EXPANSION - HELA
+            { villain: "Hela", name: "Down The Rabbit Hole", modulars: "Crazy Gang, Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon).", packs: "NCRAWL, MOJO" },
+            { villain: "Hela", name: "DEFAULT MODULARS", modulars: "Frost Giants, Legions of Hel", difficulty: "+0", notes: "Mixed minions. Sends alter-ego. Thematic.", packs: "MTS, MTS" },
+            { villain: "Hela", name: "Army of Giants", modulars: "Frost Giants, Thor's Nemesis Set", difficulty: "+1", notes: "Large minions (5x giant-traited). Sends alterego-. Thematic.", packs: "MTS, THOR" },
+            { villain: "Hela", name: "Fallen Warriors", modulars: "Clan Akkaba, Temporal", difficulty: "+1", notes: "Mixed minions. Impactful boost abilities.", packs: "APOC, KANG" },
+            { villain: "Hela", name: "Undead Mutants", modulars: "Brotherhood, Sauron", difficulty: "+2", notes: "Mixed minions. Brotherhood trait interaction. Adds mutant theme.", packs: "MG, ICEMAN" },
+            { villain: "Hela", name: "Hel on Earth", modulars: "Genosha, Infinites", difficulty: "+2", notes: "Steady. Anti-Ally (defending). Mixed minions. Adds threat. Adds mutant theme", packs: "APOC, APOC" },
+            { villain: "Hela", name: "A Bone To Pick", modulars: "Personal Nightmare, Horror", difficulty: "+2", notes: "Mixed minions. Victory display side scheme (powers up Hela). Discards. Quickstrike environment. Thematic.", packs: "SM, MOJO" },
+            { villain: "Hela", name: "The Ice Queen", modulars: "Frost Giants, Whiteout", difficulty: "+3", notes: "Large minions. Boss minion. Stuns. Sends alter-ego. Thematic.", packs: "MTS, WINTER" },
+            { villain: "Hela", name: "Hela From the Other Side", modulars: "Menagerie Medley, Guerrilla Tactics", difficulty: "+3", notes: "AntiAlly-. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Bonuses for multiple enemies. Side schemes.", packs: "GMW, SM" },
+            { villain: "Hela", name: "Bigger and Better", modulars: "Ransacked Armory, Power of the Atom", difficulty: "+3", notes: "Boss minion. Attachments (for Hela's large story minions + Thunderbolt).", packs: "HOOD, SHIELD" },
+            { villain: "Hela", name: "The Victory Dismay", modulars: "Galactic Artifacts, Future Past", difficulty: "+4", notes: "Victory display side schemes (powers up Hela. Boss minions. Nemesis interaction. Victory display.", packs: "GMW, MG" },
+
+            // THE MAD TITAN'S SHADOW CAMPAIGN EXPANSION - LOKI
+            { villain: "Loki", name: "Across the Nine Realms", modulars: "Galactic Artifacts, Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon). Victory display side schemes. Attachments.", packs: "GMW, MOJO" },
+            { villain: "Loki", name: "The Avengers", modulars: "Temporal, Armies of Titan, Shadow King", difficulty: "-2", notes: "Small minions. Stealing allies. Stuns. Thematic (inspired by the first MCU Avengers movie - space army, chitauri soldiers, scepter possession).", packs: "KANG, MTS, STORM" },
+            { villain: "Loki", name: "God of Lies", modulars: "Trickster Magic, Whispers of Paranoia", difficulty: "-2", notes: "Large minions. Gives allies. Sends alter-ego. Nemesis interaction. Thematic.", packs: "TT, SM" },
+            { villain: "Loki", name: "Framed!", modulars: "Martial Law, S.H.I.E.L.D.", difficulty: "-1", notes: "Small minions. Vulnerable. Anti-S.H.I.E.L.D.. Thematic.", packs: "CW, SHIELD" },
+            { villain: "Loki", name: "Illusions of Betrayal", modulars: "New Avengers, Secret Avengers", difficulty: "-1", notes: "Medium minions. Teamwork, Impactful boost abilities. Thematic.", packs: "CW, CW" },
+            { villain: "Loki", name: "No Stone Unturned", modulars: "Genosha, Kree Militants", difficulty: "+0", notes: "Steady. Mixed minions. Overkill/piercing boost abilities.", packs: "APOC, GMW" },
+            { villain: "Loki", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+0", notes: "Extra attacks (with Infinity Gauntlet). Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Loki", name: "Sinister Servants", modulars: "Sinister Assault, Iron Spider's Sinister Six", difficulty: "+0", notes: "Mixed minions (above average). High boost icons. Adds Spider-Man theme.", packs: "SM, SP//dr" },
+            { villain: "Loki", name: "Time Variance Authority", modulars: "Personal Nightmare, Master of Time, Dystopian Nightmare", difficulty: "+0", notes: "Mixed minions. Sends alter-ego. Huge side scheme. Side schemes. Adds time theme.", packs: "SM, KANG, SM" },
+            { villain: "Loki", name: "DEFAULT MODULARS", modulars: "Frost Giants, Enchantress", difficulty: "+0", notes: "Anti-Rush. Sends alter-ego. Steals allies Large minions. Thematic.", packs: "MTS, MTS" },
+            { villain: "Loki", name: "The Spoils of War", modulars: "Menagerie Medley, Galactic Artifacts", difficulty: "+1", notes: "AntiAlly-. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Side Schemes. Attachments.", packs: "GMW, GMW" },
+            { villain: "Loki", name: "Don't Fear the Reaver", modulars: "Reavers, Deathstrike", difficulty: "+2", notes: "Mixed minions. Reaver trait interaction. Teamwork. Discarding.", packs: "ROGUE, WOLV." },
+            { villain: "Loki", name: "Misery Business", modulars: "Mystique, Space Pirates", difficulty: "+4", notes: "Small minions. Boss minion. Quickstrike. Card removal. Puts cards in your deck. WARNING: Painful.", packs: "MG, GMW" },
+        
+            // SINISTER MOTIVES CAMPAIGN EXPANSION - SANDMAN
+            { villain: "Sandman", name: "Quicksand", modulars: "Power Drain", difficulty: "+0", notes: "Treacheries. Mills encounter deck (speeds up getting acceleration tokens).", packs: "GG" },
+            { villain: "Sandman", name: "DEFAULT MODULAR", modulars: "Down To Earth", difficulty: "+0", notes: "Sends alter-ego. Small minions. Thematic.", packs: "SM" },
+            { villain: "Sandman", name: "That Sinking Feeling", modulars: "Masters of Evil", difficulty: "+1", notes: "Mixed minions. Impactful boost abilities.", packs: "ICEMAN" },
+            { villain: "Sandman", name: "'We Are Sandy!'", modulars: "Symbiotic Strength", difficulty: "+2", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Sandman", name: "The Sandman Cometh", modulars: "Personal Nightmare", difficulty: "+2", notes: "Huge side scheme. 2x Medium minions. Adds nightmare theme.", packs: "SM" },
+            { villain: "Sandman", name: "Oops, Joined A Cult", modulars: "Clan Akkaba", difficulty: "+2", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Sandman", name: "Sandpaper", modulars: "Under Attack", difficulty: "+2", notes: "Anti-Ally. Surprise damage.", packs: "CORE" },
+            { villain: "Sandman", name: "The Sinister Seven", modulars: "Sinister Assault", difficulty: "+3", notes: "Large minions. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Sandman", name: "Debris Storm", modulars: "Wrecking Crew, Streets of Mayhem", difficulty: "+3", notes: "Large minions. Changing environments. High boost icons. Thematic.", packs: "HOOD, HOOD" },
+            { villain: "Sandman", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+3", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Sandman", name: "The Sands of Time", modulars: "Anachronauts", difficulty: "+3", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Sandman", name: "Concrete Fists", modulars: "Mutant Insurrection, Extreme Risk", difficulty: "+4", notes: "Mixed minions. Boss minion. High boost icons.", packs: "NEXT, SHURI" },
+            { villain: "Sandman", name: "Snowman", modulars: "Frost Giants, Whiteout", difficulty: "+4", notes: "Mixed minions. Boss minion. Stuns. Sends alter-ego.", packs: "MTS, WINTER" },
+            { villain: "Sandman", "name": "Dune Sea Desperadoes", "modulars": "Super Strength, Sinister Syndicate", "difficulty": "+4", "notes": "Steady. ATK boost. Medium minions. Thematic.", "packs": "NEXT, HOOD" },
+            { villain: "Sandman", name: "I Don't Like Sand It's coarse and rough...", modulars: "Telepathy, Genosha", difficulty: "+4", notes: "Steady. Retaliate. Anti-Ally. SCH bonus. Mixed minions.", packs: "NEXT, APOC" },
+
+            // SINISTER MOTIVES CAMPAIGN EXPANSION - VENOM
+            { villain: "Venom", name: "Midnight Suns !", modulars: "Bomb Scare", difficulty: "-1", notes: "Small minions.", packs: "CORE" },
+            { villain: "Venom", name: "Symbiote Swarm", modulars: "Venom's Nemesis Set", difficulty: "+0", notes: "Small minions. Thematic.", packs: "VENOM" },
+            { villain: "Venom", name: "Twisted Timewarp", modulars: "Temporal", difficulty: "+0", notes: "Small minions. Stuns.", packs: "KANG" },
+            { villain: "Venom", name: "DEFAULT MODULAR", modulars: "Down To Earth", difficulty: "+0", notes: "Sends alterego-. Small minions.", packs: "SM" },
+            { villain: "Venom", name: "Midnight Suns II", modulars: "Hydra Patrol", difficulty: "+1", notes: "Small minions. Reveals more of his cards.", packs: "RORS" },
+            { villain: "Venom", name: "Oops, Ate A Cult", modulars: "Clan Akkaba", difficulty: "+1", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Venom", name: "Steady Eddie", modulars: "Genosha, Celestial Tech", difficulty: "+2", notes: "Steady. Mixed minions. Attachments.", packs: "APOC, APOC" },
+            { villain: "Venom", name: "The Sinister Seven", modulars: "Sinister Assault", difficulty: "+2", notes: "Large minions. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Venom", name: "Brock N' Roll Band", modulars: "Band of Badoon", difficulty: "+2", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm.", packs: "GMW" },
+            { villain: "Venom", name: "The Lethal Attacker", modulars: "Kree Militants", difficulty: "+2", notes: "Large minions. Overkill/piercing boost abilities.", packs: "GMW" },
+            { villain: "Venom", name: "Timely Revenge", modulars: "Anachronauts", difficulty: "+3", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Venom", name: "Symbiotic Tendrils", modulars: "Super Strength, Black Tom Cassidy", difficulty: "+3", notes: "Anti-Rush. Steady. ATK boost. Stuns. Quickstrike. Small minions. Thematic.", packs: "NEXT, NEXT" },
+            { villain: "Venom", name: "Knull's Lullaby", modulars: "Children of Thanos, Hard Sound", difficulty: "+4", notes: "Large minions. Boss minion. Impactful boost abilities.", packs: "MTS, SHIELD" },
+            { villain: "Venom", name: "'Now We're REALLY Angry!'", modulars: "Anachronauts, Space Pirates, Hard Sound", difficulty: "+4", notes: "Mixed minions. Impactful boost abilities (additional boost cards). Quickstrike. Boss minion.", packs: "KANG, GMW, SHIELD" },
+
+            // SINISTER MOTIVES CAMPAIGN EXPANSION - MYSTERIO
+            { villain: "Mysterio", name: "Incredible Illusions", modulars: "Temporal", difficulty: "-2", notes: "Small minions. Stuns. Thematic.", packs: "KANG" },
+            { villain: "Mysterio", name: "Friend or Foe?", modulars: "Trickster Magic", difficulty: "-2", notes: "Large minions. Gives allies. Thematic.", packs: "TT" },
+            { villain: "Mysterio", name: "Visions of Despair", modulars: "Dystopian Nightmare", difficulty: "-2", notes: "Sends alter-ego. Thematic.", packs: "APOC" },
+            { villain: "Mysterio", name: "Framed!", modulars: "S.H.I.E.L.D.", difficulty: "-1", notes: "Small minions. Vulnerable. Anti-S.H.I.E.L.D.. Thematic.", packs: "SHIELD" },
+            { villain: "Mysterio", name: "Doom's Brigade", modulars: "Batroc's Brigade", difficulty: "-1", notes: "Medium minions. Thematic.", packs: "SHIELD" },
+            { villain: "Mysterio", name: "Martial Mirages", modulars: "Weapon Master", difficulty: "-1", notes: "Extra attacks (more illusions in your deck).", packs: "RORS" },
+            { villain: "Mysterio", name: "Twisted Funfair", modulars: "Arcade", difficulty: "-1", notes: "Side schemes. Thematic.", packs: "JUBILEE" },
+            { villain: "Mysterio", name: "Illusions of Betrayal", modulars: "Any two Civil War/Synth. Smackdown modular sets (e.g. New Avengers/Spider-Man)", difficulty: "-1", notes: "Medium minions. Thematic.", packs: "CW+SS" },
+            { villain: "Mysterio", name: "Special Effects Expert", modulars: "Any MojoMania Modular Set", difficulty: "+0?", notes: "Various. Environments. Thematic. (I suggest Fantasy or Horror!)", packs: "MOJO" },
+            { villain: "Mysterio", name: "DEFAULT MODULAR", modulars: "Whispers of Paranoia.", difficulty: "+0", notes: "Illusion trait. Sends alter-ego. Nemesis interaction. Thematic.", packs: "SM" },
+            { villain: "Mysterio", name: "'We Are Mysterious!'", modulars: "Symbiotic Strength", difficulty: "+1", notes: "Extra attacks (more illusions in your deck). Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Mysterio", name: "The Sinister Seven", modulars: "Sinister Assault", difficulty: "+1", notes: "Large minions. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Mysterio", name: "Jurassic World", modulars: "Savage Land", difficulty: "+1", notes: "Retaliate. Discards. Mixed minions. Thematic.", packs: "APOC" },
+            { villain: "Mysterio", name: "The Illusionists", modulars: "Enchantress", difficulty: "+2", notes: "Anti-Rush. Sends alter-ego. Steals allies. Thematic.", packs: "MTS" },
+            { villain: "Mysterio", name: "Mind Games", modulars: "Telepathy", difficulty: "+3", notes: "Retaliate. Anti-Ally. SCH bonus. Overkill.", packs: "NEXT" },
+            { villain: "Mysterio", name: "Deja Vu", modulars: "Mystique", difficulty: "+4", notes: "Boss minion. Puts cards in your deck.", packs: "MG" },
+
+            // SINISTER MOTIVES CAMPAIGN EXPANSION - THE SINISTER SIX
+            { villain: "The Sinister Six", name: "Hive of Scum & Villainy", modulars: "Down to Earth", difficulty: "-1", notes: "Small minions. Sends alter-ego. Thematic.", packs: "SM" },
+            { villain: "The Sinister Six", name: "Reptilian Recruit", modulars: "Ghost-Spider's Nemesis Set", difficulty: "-1", notes: "Large minion. Thematic.", packs: "SM" },
+            { villain: "The Sinister Six", name: "A Rolling Stone", modulars: "Running Interference", difficulty: "-1", notes: "Boss minion. Sends alter-ego. Attachments. Thematic.", packs: "GG" },
+            { villain: "The Sinister Six", name: "Nowhere to Hide", modulars: "Dystopian Nightmare", difficulty: "-1", notes: "Sends alter-ego. Thematic.", packs: "APOC" },
+            { villain: "The Sinister Six", name: "Running with Rhino", modulars: "City of Chaos", difficulty: "+0", notes: "Large minion. Acceleration tokens. Thematic.", packs: "SM" },
+            { villain: "The Sinister Six", name: "Mutant Ambush", modulars: "Genosha", difficulty: "+1", notes: "Steady. Mixed minions.", packs: "APOC" },
+            { villain: "The Sinister Six", name: "'We are Plural!'", modulars: "Symbiotic Strength", difficulty: "+1", notes: "Extra attacks. Dangerous attacks. Small minions. Thematic.", packs: "SM" },
+            { villain: "The Sinister Six", name: "Really, Really Sinister", modulars: "Sinister Syndicate", difficulty: "+1", notes: "Medium minions. Boost effects. Thematic.", packs: "HOOD" },
+            { villain: "The Sinister Six", name: "Coordinated Crime", modulars: "State of Emergency", difficulty: "+2", notes: "Side schemes. High boost icons. Thematic.", packs: "HOOD" },
+
+            // SINISTER MOTIVES CAMPAIGN EXPANSION - VENOM GOBLIN
+            { villain: "Venom Goblin", name: "Classic Goblin", modulars: "Goblin Gimmicks", difficulty: "-3", notes: "Attachments. Treacheries.", packs: "GG" },
+            { villain: "Venom Goblin", name: "Symbiote Swarm", modulars: "Venom's Nemesis Set", difficulty: "-2", notes: "Small minions. Impactful boost abilities. Thematic.", packs: "VENOM" },
+            { villain: "Venom Goblin", name: "Rogues' Gallery", modulars: "Sinister Assault", difficulty: "-1", notes: "Large minions. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Venom Goblin", name: "A City on Fire", modulars: "State of Emergency", difficulty: "-1", notes: "Side schemes. High boost icons. Thematic.", packs: "HOOD" },
+            { villain: "Venom Goblin", name: "Symbiotic Tendrils", modulars: "Black Tom Cassidy", difficulty: "-1", notes: "Anti-Rush. Stuns. Quickstrike. Small minions.", packs: "NEXT" },
+            { villain: "Venom Goblin", name: "Oops, Ate Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+0", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Venom Goblin", name: "DEFAULT MODULAR", modulars: "Goblin Gear", difficulty: "+0", notes: "Extra activations. Attachments. Thematic.", packs: "SM" },
+            { villain: "Venom Goblin", name: "Oscorp Unleashed", modulars: "Osborn Tech", difficulty: "+2", notes: "Attachments. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Venom Goblin", name: "Nightmare Goblin", modulars: "Infinity Gauntlet, Super Strength, Goblin Gear", difficulty: "+4", notes: "Steady. Status cards. ATK/SCH bonus. Extra activations. Attachments.", packs: "MTS, NEXT, SM" },
+
+            // MUTANT GENESIS CAMPAIGN EXPANSION - SABRETOOTH
+            { villain: "Sabretooth", name: "Big Healer", modulars: "Mutant Insurrection, Streets of Mayhem", difficulty: "-1", notes: "Mixed minions. Changing environment. High boost icons.", packs: "NEXT, HOOD" },
+            { villain: "Sabretooth", name: "Criminal World", modulars: "Iron Spider's Sinister Six, Down to Earth", difficulty: "-1", notes: "Mixed minions. Sends alterego- Criminal trait interaction.", packs: "SP//dr, SM" },
+            { villain: "Sabretooth", name: "Otherhood #1", modulars: "Brotherhood, Rogue's Nemesis Set", difficulty: "-1", notes: "Mixed minions. Brotherhood trait interaction. Puts cards in your deck. Thematic.", packs: "MG, ROGUE" },
+            { villain: "Sabretooth", name: "Otherhood #2", modulars: "Brotherhood, Sci-Fi", difficulty: "-1", notes: "Mixed minions. Toughness environment. 2x Brotherhood characters. Thematic.", packs: "MG, MOJO" },
+            { villain: "Sabretooth", name: "Otherhood #3", modulars: "Brotherhood, Sauron", difficulty: "+0", notes: "Mixed minions. Brotherhood trait interaction. Thematic.", packs: "MG, ICEMAN" },
+            { villain: "Sabretooth", name: "DEFAULT MODULARS", modulars: "Brotherhood, Mystique", difficulty: "+0", notes: "Mixed minions. Boss minion. Puts cards in your deck. Brotherhood trait interaction. Thematic.", packs: "MG, MG" },
+            { villain: "Sabretooth", name: "Mutant Mayhem", modulars: "Genosha, Infinites", difficulty: "+1", notes: "Steady. Anti-Ally (defending). Mixed minions. Adds threat. Adds mutant theme.", packs: "APOC, APOC" },
+            { villain: "Sabretooth", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+1", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Sabretooth", name: "Don't Fear the Reaver", modulars: "Reavers, Deathstrike", difficulty: "+2", notes: "Mixed minions. Reaver trait interaction. Teamwork. Discarding.", packs: "ROGUE, WOLV." },
+            { villain: "Sabretooth", name: "Assassin's Creed", modulars: "Gambit's Nemesis Set, Arcade", difficulty: "+2", notes: "Mixed minions. Quickstrike. Side schemes. Assassin trait interaction.", packs: "GAMBIT, JUBILEE" },
+            { villain: "Sabretooth", name: "Single-Minded Fury", modulars: "Super Strength, Under Attack", difficulty: "+3", notes: "Steady. Anti-Ally. No minions. Surprise damage. ATK boost.", packs: "NEXT, CORE" },
+            { villain: "Sabretooth", name: "Biggest Healer", modulars: "Sinister Assault, Osborn Tech", difficulty: "+4", notes: "Attachments. High boost icons. Adds Spider-Man theme.", packs: "SM, SM" },
+
+            // MUTANT GENESIS CAMPAIGN EXPANSION - PROJECT WIDEAWAKE (SENTINELS)
+            { villain: "Project Wideawake (Sentinels)", name: "Round Them Up", modulars: "Military Grade", difficulty: "-1", notes: "Attachments. Thematic.", packs: "NEXT" },
+            { villain: "Project Wideawake (Sentinels)", name: "High Voltage", modulars: "Power Drain", difficulty: "-1", notes: "Treacheries. Mills encounter deck. Thematic.", packs: "GG" },
+            { villain: "Project Wideawake (Sentinels)", name: "No Laughing Matter", modulars: "Sitcom", difficulty: "+0", notes: "Sends alter-ego (harder solo). Obligations.", packs: "MOJO" },
+            { villain: "Project Wideawake (Sentinels)", name: "DEFAULT MODULAR", modulars: "Sentinels", difficulty: "+0", notes: "Large minions. Sentinel trait interaction. Thematic.", packs: "MG" },
+            { villain: "Project Wideawake (Sentinels)", name: "Run For Your Lives", modulars: "A.I.M. Abduction", difficulty: "+1", notes: "Anti-Ally. Steals allies. Small minions.", packs: "SHIELD" },
+            { villain: "Project Wideawake (Sentinels)", name: "Anti-Mutant Pact", modulars: "Genosha", difficulty: "+1", notes: "Steady. Mixed minions. Thematic.", packs: "APOC" },
+            { villain: "Project Wideawake (Sentinels)", name: "00PS, J01N3D A CULT", modulars: "Clan Akkaba", difficulty: "+2", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Project Wideawake (Sentinels)", name: "Predictive Algorithm", modulars: "Telepathy, Sci-Fi", difficulty: "+3", notes: "Retaliate. Anti-Ally. SCH bonus. Overkill. Mixed minions. Toughness environment.", packs: "NEXT, MOJO" },
+            { villain: "Project Wideawake (Sentinels)", name: "Dark Future", modulars: "Future Past, Dystopian Nightmare", difficulty: "+4", notes: "Boss minions. Sends alter-ego. Victory display. Nemesis interaction. Thematic.", packs: "MG, APOC" },
+            { villain: "Project Wideawake (Sentinels)", name: "Big Happy Robot Family", modulars: "Future Past, Sentinels", difficulty: "+4", notes: "Boss minions. Victory display. High boost icons. Nemesis interaction. Thematic.", packs: "MG, MG" },
+            { villain: "Project Wideawake (Sentinels)", name: "New Hardware", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. High boost icons. Thematic.", packs: "SM" },
+
+            // MUTANT GENESIS CAMPAIGN EXPANSION - MASTER MOLD
+            { villain: "Master Mold", name: "High Voltage", modulars: "Power Drain", difficulty: "-1", notes: "Treacheries. Mills encounter deck. Thematic.", packs: "GG" },
+            { villain: "Master Mold", name: "DEFAULT MODULAR", modulars: "Zero Tolerance", difficulty: "+0", notes: "Mixed minions. Sentinel trait interaction. Thematic.", packs: "MG" },
+            { villain: "Master Mold", name: "Someone to Stun", modulars: "Scientist Supreme, S.H.I.E.L.D.", difficulty: "+1", notes: "Mixed minions. Vulnerable. Anti-S.H.I.E.L.D.", packs: "SHIELD, SHIELD" },
+            { villain: "Master Mold", name: "No Laughing Matter", modulars: "Sitcom", difficulty: "+2", notes: "Sends alter-ego (brings in minions here). Obligations.", packs: "MOJO" },
+            { villain: "Master Mold", name: "Programmed Robots", modulars: "Sci-Fi", difficulty: "+2", notes: "Mixed minions. Toughness environment. Thematic.", packs: "MOJO" },
+            { villain: "Master Mold", name: "Master Mind", modulars: "Telepathy, Zero Tolerance", difficulty: "+3", notes: "Retaliate. Anti-Ally. SCH bonus. Sends alter-ego (brings in minions here). Overkill. Mixed minions. Sentinel trait interaction.", packs: "NEXT, MG" },
+            { villain: "Master Mold", name: "Sentinel-IV", modulars: "Supersonic, Zero Tolerance", difficulty: "+3", notes: "Mixed minions. Sentinel trait interaction. Overkill. Thematic.", packs: "SHIELD, MG" },
+            { villain: "Master Mold", name: "New Hardware", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. High boost icons. Thematic.", packs: "SM" },
+            { villain: "Master Mold", name: "Big Happy Robot Family", modulars: "Future Past, Zero Tolerance", difficulty: "+4", notes: "Mixed minions. Boss minions. Victory display. Sentinel trait interaction. Nemesis interaction. Thematic.", packs: "MG, MG" },
+            { villain: "Master Mold", name: "Nano-Tech Online", modulars: "Future Past", difficulty: "+4", notes: "Boss minions. Victory display. High boost icons. Nemesis interaction. Thematic.", packs: "MG" },
+
+            // MUTANT GENESIS CAMPAIGN EXPANSION - MANSION ATTACK
+            { villain: "Mansion Attack", name: "Gatecrashers", modulars: "Mutant Slayers", difficulty: "-3", notes: "Mixed minions.", packs: "NEXT" },
+            { villain: "Mansion Attack", name: "Mansion Mayhem", modulars: "Streets of Mayhem", difficulty: "-2", notes: "Changing environment (combos with main schemes). High boost icons.", packs: "HOOD" },
+            { villain: "Mansion Attack", name: "Bad Neighborhood", modulars: "Genosha", difficulty: "-2", notes: "Steady. Mixed minions.", packs: "APOC" },
+            { villain: "Mansion Attack", name: "Mansion Demolition", modulars: "Wrecking Crew", difficulty: "-1", notes: "Large minions. High boost icons.", packs: "HOOD" },
+            { villain: "Mansion Attack", name: "Otherhood #1", modulars: "Rogue's Nemesis Set", difficulty: "-1", notes: "Large minion. Brotherhood trait interaction. Puts cards in your deck. Thematic.", packs: "ROGUE" },
+            { villain: "Mansion Attack", name: "Otherhood #2", modulars: "Sci-Fi", difficulty: "-1", notes: "Mixed minions. Toughness environment. 2x Brotherhood characters. Thematic.", packs: "MOJO" },
+            { villain: "Mansion Attack", name: "Otherhood #3", modulars: "Sauron", difficulty: "-1", notes: "Large minion. Brotherhood trait interaction. Thematic.", packs: "ICEMAN" },
+            { villain: "Mansion Attack", name: "'We Are Plural!'", modulars: "Symbiotic Strength", difficulty: "-1", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Mansion Attack", name: "DEFAULT MODULAR", modulars: "Mystique", difficulty: "+0", notes: "Boss minion. Puts cards in your deck. Thematic.", packs: "MG" },
+            { villain: "Mansion Attack", name: "Family Reunion", modulars: "Colossus' Nemesis Set", difficulty: "+1", notes: "Overkill/piercing. Large minion. Thematic.", packs: "MG" },
+            { villain: "Mansion Attack", name: "The Professor's Chair", modulars: "The Doomsday Chair", difficulty: "+1", notes: "Large minion. Attachments.", packs: "CORE" },
+            { villain: "Mansion Attack", name: "Passing the Torch", modulars: "Infinity Gauntlet", difficulty: "+1", notes: "Status cards. ATK/SCH bonus. (Due to the Permanent keyword, the Infinity Gauntlet passes to the next villain once one is defeated)", packs: "MTS" },
+            { villain: "Mansion Attack", name: "Motherboard of Evil Mutants", modulars: "Future Past", difficulty: "+2", notes: "Boss minions. Victory display. High boost icons. Nemesis interaction. Thematic.", packs: "MG" },
+
+            // MUTANT GENESIS CAMPAIGN EXPANSION - MAGNETO
+            { villain: "Magneto", name: "Marauder Clones", modulars: "Mutant Slayers", difficulty: "-2", notes: "Medium minions. Thematic.", packs: "NEXT" },
+            { villain: "Magneto", name: "Mass Sentinel Production", modulars: "Sentinels, Zero Tolerance", difficulty: "-2", notes: "Mixed minions. Sentinel trait interaction. Thematic.", packs: "MG, MG" },
+            { villain: "Magneto", name: "Electromagnetic Pulse", modulars: "Power Drain", difficulty: "-2", notes: "Treacheries. Mills encounter deck. Thematic.", packs: "GG" },
+            { villain: "Magneto", name: "Homo Superior", modulars: "Extreme Measures", difficulty: "-1", notes: "Mixed minions. Enter play abilities.", packs: "NEXT" },
+            { villain: "Magneto", name: "The Gang's All Here", modulars: "Brotherhood", difficulty: "-1", notes: "Mixed minions. Thematic.", packs: "MG" },
+            { villain: "Magneto", name: "Aco-Lites", modulars: "Magneto's Nemesis Set", difficulty: "-1", notes: "Mixed minions. Discards. Thematic.", packs: "MAGNTO" },
+            { villain: "Magneto", name: "DEFAULT MODULAR", modulars: "Acolytes", difficulty: "+0", notes: "Mixed minions. Teamwork. Thematic.", packs: "MG" },
+            { villain: "Magneto", name: "Vanity Project", modulars: "Sci-Fi", difficulty: "+0", notes: "Includes robotic Magneto minion. Mixed minions. Toughness environment. Thematic.", packs: "MOJO" },
+            { villain: "Magneto", name: "No Stone Unturned", modulars: "Kree Militants", difficulty: "+0", notes: "Large minions. Overkill/piercing boost abilities.", packs: "GMW" },
+            { villain: "Magneto", name: "'We Are Magnetic!'", modulars: "Symbiotic Strength", difficulty: "+1", notes: "Extra attacks. Dangerous attacks. Small minions.", packs: "SM" },
+            { villain: "Magneto", name: "The Creator", modulars: "Savage Land", difficulty: "+1", notes: "Retaliate. Discards. Mixed minions. Thematic.", packs: "APOC" },
+            { villain: "Magneto", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+2", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Magneto", name: "Asteroid-H", modulars: "Legions of Hydra", difficulty: "+3", notes: "Mixed minions.", packs: "CORE" },
+            { villain: "Magneto", name: "Acolytes United", modulars: "Acolytes, Exodus", difficulty: "+4", notes: "Mixed minions. Boss minion. Teamwork. Status cards. Thematic.", packs: "MG, GAMBIT" },
+
+            // NEXT EVOLUTION CAMPAIGN EXPANSION - MORLOCK SIEGE
+            { villain: "Morlock Siege", name: "Making An Entrance", modulars: "Bomb Scare, Power Drain", difficulty: "-1", notes: "Small minions. Treacheries. Mills encounter deck.", packs: "CORE, GG" },
+            { villain: "Morlock Siege", name: "DEFAULT MODULARS", modulars: "Military Grade, Mutant Slayers", difficulty: "+0", notes: "Medium minions. Attachments. Thematic.", packs: "NEXT, NEXT" },
+            { villain: "Morlock Siege", name: "Run For Your Lives", modulars: "Genosha, Dystopian Nightmare", difficulty: "+1", notes: "Sends alter-ego. Steady. Mixed minions. Thematic.", packs: "APOC, APOC" },
+            { villain: "Morlock Siege", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+2", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Morlock Siege", name: "Morlock Mayhem", modulars: "A.I.M. Abduction, Under Attack", difficulty: "+2", notes: "Anti-Ally. Surprise damage. 2x Small minions. (Abduct Superhumans can heal Morlocks)", packs: "SHIELD, CORE" },
+            { villain: "Morlock Siege", name: "Hungry Like The Wolf", modulars: "Horror, Legions of Hel", difficulty: "+2", notes: "Mixed minions. Quickstrike environment. Adds horror theme.", packs: "MOJO, MTS" },
+            { villain: "Morlock Siege", name: "Changing of the Guard", modulars: "Black Tom Cassidy, Infinites", difficulty: "+2", notes: "Anti-Rush. Anti-Ally (defending). Stuns. Quickstrike. Small minions.", packs: "NEXT, APOC" },
+            { villain: "Morlock Siege", name: "Under Pressure", modulars: "Blue Moon, Growing Strong", difficulty: "+3", notes: "Anti-Rush. Teamwork. Mixed minions. Boss minion. Treacheries.", packs: "APOC, SILK" },
+            { villain: "Morlock Siege", name: "Relentless Raiders", modulars: "Telepathy, Frost Giants", difficulty: "+3", notes: "Retaliate. Anti-Ally. SCH bonus. Overkill. Sends alter-ego. Exhausts Morlocks. Large minions. (Due to the Permanent keyword, Telepathy passes to the next villain once one is defeated)", packs: "NEXT, MTS" },
+            { villain: "Morlock Siege", name: "Boost Card Massacre", modulars: "Anachronauts, Hard Sound", difficulty: "+4", notes: "Mixed minions. Boss minion. Impactful boost abilities (additional boost cards).", packs: "KANG, SHIELD" },
+
+            // NEXT EVOLUTION CAMPAIGN EXPANSION - ON THE RUN
+            { villain: "On the Run", name: "Cut The Power", modulars: "Zzzax, Power Drain", difficulty: "-2", notes: "Treacheries. Mills encounter deck. Punishes energy resources.", packs: "IRONHRT, GG" },
+            { villain: "On the Run", name: "Crime Wave", modulars: "Down To Earth, City of Chaos", difficulty: "-1", notes: "Mixed minions. Sends alter-ego.", packs: "SM, SM" },
+            { villain: "On the Run", name: "DEFAULT MODULARS", modulars: "Military Grade, Nasty Boys", difficulty: "+0", notes: "Mixed minions. Attachments. Teamwork. Thematic.", packs: "NEXT, NEXT" },
+            { villain: "On the Run", name: "Twisted Funfair", modulars: "Crazy Gang, Arcade", difficulty: "+0", notes: "Mixed minions. Side schemes.", packs: "NCRAWL, JUBILEE" },
+            { villain: "On the Run", name: "Space Jam", modulars: "Armies of Titan, Children of Thanos", difficulty: "+1", notes: "Mixed minions. Impactful boost abilities. Adds Black Order theme.", packs: "MTS, MTS" },
+            { villain: "On the Run", name: "A Chase Within A Chase", modulars: "Genosha, Celestial Tech", difficulty: "+1", notes: "Steady. Mixed minions. Attachments.", packs: "APOC, APOC" },
+            { villain: "On the Run", name: "Hydra Armory", modulars: "Hydra Patrol, Ransacked Armory", difficulty: "+1", notes: "Anti-Rush. Mixed minions. Reveals more of their cards.Attachments.", packs: "RORS, HOOD" },
+            { villain: "On the Run", name: "Oops, Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+1", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "On the Run", name: "A State of Mayhem", modulars: "Streets of Mayhem, State of Emergency", difficulty: "+2", notes: "Side schemes. Changing environment. High boost icons. Thematic.", packs: "HOOD, HOOD" },
+            { villain: "On the Run", name: "Ultimate Swarm", modulars: "Band of Badoon, Menagerie Medley", difficulty: "+3", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Swarm.", packs: "GMW, GMW" },
+            { villain: "On the Run", name: "Prehistoric Spider", modulars: "Savage Land, Pale Little Spider", difficulty: "+4", notes: "Retaliate. Discards. Mixed minions. Boss minion.", packs: "APOC, SHIELD" },
+
+            // NEXT EVOLUTION CAMPAIGN EXPANSION - JUGGERNAUT
+            { villain: "Juggernaut", name: "The Once & Future Juggs", modulars: "Temporal", difficulty: "-2", notes: "Small minions. Stuns.", packs: "KANG" },
+            { villain: "Juggernaut", name: "Princess Hope", modulars: "Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon).", packs: "MOJO" },
+            { villain: "Juggernaut", name: "Sinister's Plan", modulars: "Mutant Slayers, Military Grade", difficulty: "-2", notes: "Medium minions. Attachments.", packs: "NEXT, NEXT" },
+            { villain: "Juggernaut", name: "Brotherhood Infiltration", modulars: "Brotherhood", difficulty: "-1", notes: "Mixed minions. Thematic.", packs: "MG" },
+            { villain: "Juggernaut", name: "DEFAULT MODULAR", modulars: "Black Tom Cassidy", difficulty: "+0", notes: "Anti-Rush. Stuns. Quickstrike. Small minions. Thematic.", packs: "NEXT" },
+            { villain: "Juggernaut", name: "Astronauts & Juggernauts", modulars: "Kree Militants", difficulty: "+0", notes: "Large minions. Overkill/piercing boost abilities.", packs: "GMW" },
+            { villain: "Juggernaut", name: "Enemy Of My Enemy", modulars: "Acolytes", difficulty: "+0", notes: "Mixed minions. Teamwork.", packs: "MG" },
+            { villain: "Juggernaut", name: "Icebreaker", modulars: "Frost Giants", difficulty: "+0", notes: "Sends alter-ego. Large minions.", packs: "MTS" },
+            { villain: "Juggernaut", name: "Smash Bros", modulars: "Wrecking Crew", difficulty: "+0", notes: "Large minions. High boost icons. Brute synergy.", packs: "HOOD" },
+            { villain: "Juggernaut", name: "Anachro-Juggernauts", modulars: "Anachronauts", difficulty: "+1", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Juggernaut", name: "Thunderbolts Are Go", modulars: "Thunderbolts, Gravitational Pull", difficulty: "+2", notes: "Boss minion. Medium minions. Thematic.", packs: "SS, SHIELD" },
+            { villain: "Juggernaut", name: "Ready to Rumble", modulars: "Legions of Hydra", difficulty: "+3", notes: "Mixed minions.", packs: "CORE" },
+            { villain: "Juggernaut", name: "Non-Stop Removal", modulars: "Osborn Tech", difficulty: "+4", notes: "Attachments. No minions.", packs: "SM" },
+
+            // NEXT EVOLUTION CAMPAIGN EXPANSION - MISTER SINISTER
+            { villain: "Mister Sinister", name: "Marauder's Orders", modulars: "Mutant Slayers", difficulty: "-2", notes: "Medium minions. Thematic.", packs: "NEXT" },
+            { villain: "Mister Sinister", name: "DEFAULT MODULAR", modulars: "Nasty Boys", difficulty: "+0", notes: "Mixed minions. Teamwork. Thematic.", packs: "NEXT" },
+            { villain: "Mister Sinister", name: "The Clone Wars", modulars: "Brotherhood", difficulty: "+0", notes: "Mixed minions. Thematic.", packs: "MG" },
+            { villain: "Mister Sinister", name: "Genetic Doubles", modulars: "Personal Nightmare", difficulty: "+0", notes: "Huge side scheme. Discards. 2x medium minions. Thematic (clones).", packs: "SM" },
+            { villain: "Mister Sinister", name: "Toughs and Clones", modulars: "Armies of Titan", difficulty: "+0", notes: "Toughs. Small minions. Side schemes can bring in clones.", packs: "MTS" },
+            { villain: "Mister Sinister", name: "Mister Hydra", modulars: "Hydra Patrol", difficulty: "+0", notes: "Small minions. Reveals his own cards.", packs: "RORS" },
+            { villain: "Mister Sinister", name: "Experimental Armor", modulars: "Armadillo", difficulty: "+0", notes: "Toughs. Large minion.", packs: "NOVA" },
+            { villain: "Mister Sinister", name: "Expanding The Gene Pool", modulars: "Infinites", difficulty: "+0", notes: "Anti-Ally (defending). Small minions. Thematic.", packs: "APOC" },
+            { villain: "Mister Sinister", name: "Big Iron", modulars: "Iron Spider's Sinister Six", difficulty: "+1", notes: "Mixed minions.", packs: "SP//dr" },
+            { villain: "Mister Sinister", name: "Sweeping the City", modulars: "Streets of Mayhem, Hydra Assault", difficulty: "+1", notes: "Environments combo with Superpower modulars. Small minions. Extra attacks.", packs: "HOOD, RORS" },
+            { villain: "Mister Sinister", name: "Strange Experiments", modulars: "Menagerie Medley", difficulty: "+2", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "GMW" },
+            { villain: "Mister Sinister", name: "What's Your Status?", modulars: "Acolytes, Celestial Tech", difficulty: "+2", notes: "Mixed minions. Teamwork. Attachments. Status cards.", packs: "MG, APOC" },
+            { villain: "Mister Sinister", name: "Genetic Boosts", modulars: "Anachronauts", difficulty: "+2", notes: "Mixed minions. Impactful boost abilities.", packs: "KANG" },
+            { villain: "Mister Sinister", name: "When The Going Gets Tough", modulars: "Armies of Titan, Growing Strong", difficulty: "+4", notes: "Small minions. Boss minion. Toughs. Side schemes can bring in clones.", packs: "MTS, SILK" },
+
+            // NEXT EVOLUTION CAMPAIGN EXPANSION - STRYFE
+            { villain: "Stryfe", name: "Warped Timeline", modulars: "Temporal, Dystopian Nightmare", difficulty: "-1", notes: "Small minions. Sends alter-ego. Stuns. Thematic.", packs: "KANG, APOC" },
+            { villain: "Stryfe", name: "Fallen Future", modulars: "Sentinels, Zero Tolerance", difficulty: "-1", notes: "Mixed minions. Sentinel trait interaction. Thematic..", packs: "MG, MG" },
+            { villain: "Stryfe", name: "DEFAULT MODULARS", modulars: "Extreme Measures, Mutant Insurrection", difficulty: "+0", notes: "Mixed minions. Mutant Liberation Front trait interaction. Thematic.", packs: "NEXT, NEXT" },
+            { villain: "Stryfe", name: "Anti-Mutant Mayhem", modulars: "Military Grade, Genosha", difficulty: "+0", notes: "Steady. Mixed minions. Attachments. Thematic.", packs: "NEXT, APOC" },
+            { villain: "Stryfe", name: "Future Forces", modulars: "Band of Badoon, Experimental Weapons", difficulty: "+1", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm. Attachments.", packs: "GMW, RORS" },
+            { villain: "Stryfe", name: "Back in Time", modulars: "Savage Land, Fantasy", difficulty: "+2", notes: "Retaliate. Discards. Mixed minions. Boss minion (Dragon). Fantasy environment increases hand size. Thematic.", packs: "APOC, MOJO" },
+            { villain: "Stryfe", name: "Erase Your Board", modulars: "Sinister Syndicate, Children of Thanos", difficulty: "+2", notes: "Mixed minions. Impactful boost abilities Discards a LOT of upgrades/supports.", packs: "HOOD, MTS" },
+            { villain: "Stryfe", name: "Chronos Corps", modulars: "Hounds, Master of Time", difficulty: "+2", notes: "Mixed minions. Quickstrike. Thematic.", packs: "APOC, KANG" },
+            { villain: "Stryfe", name: "Psionic Bastion", modulars: "Exodus, Psylocke's Nemesis Set", difficulty: "+3", notes: "Boss minion. Large minion. Psionic cards (combos with Stryfe). Status cards.", packs: "GAMBIT, PSYLCKE" },
+            { villain: "Stryfe", name: "A Firm Handshake", modulars: "Extreme Risk, Zzzax", difficulty: "+3", notes: "Extreme Risk increases hand size. Zzzax punishes energies in hand. Boss minion.", packs: "SHURI, IRONHRT" },
+            { villain: "Stryfe", name: "At Full Power", modulars: "Telepathy, Extreme Measures, Mutant Insurrection", difficulty: "+4", notes: "Retaliate. Anti-Ally. SCH bonus. Overkill. Mixed minions. Mutant Liberation Front trait interaction. Sends alter-ego. Thematic.", packs: "NEXT, NEXT, NEXT" },
+            { villain: "Stryfe", name: "Ticking Time Bomb", modulars: "Genosha, Power of the Atom", difficulty: "+4", notes: "Steady. Mixed minions. Boss minion. Surprise damage.", packs: "APOC, SHIELD" },
+
+            // AGE OF APOCALYPSE CAMPAIGN EXPANSION - UNUS
+            { villain: "Unus", name: "Latest Weapons", modulars: "Experimental Weapons", difficulty: "-2", notes: "Attachments. Thematic.", packs: "RORS" },
+            { villain: "Unus", name: "Well-Armed Soldiers", modulars: "Ransacked Armory", difficulty: "-1", notes: "Attachments. Thematic.", packs: "HOOD" },
+            { villain: "Unus", name: "DEFAULT MODULARS", modulars: "Dystopian Nightmare", difficulty: "+0", notes: "Sends alter-ego. Thematic.", packs: "APOC" },
+            { villain: "Unus", name: "Twin Armies", modulars: "Armies of Titan", difficulty: "+0", notes: "Small minions. Side schemes can bring in more Infinites.", packs: "MTS" },
+            { villain: "Unus", name: "Ally Agony", modulars: "Crossfire's Crew", difficulty: "+1", notes: "Anti-Ally. Medium minions.", packs: "HOOD" },
+            { villain: "Unus", name: "Highly-Trained", modulars: "Guerrilla Tactics", difficulty: "+1", notes: "Bonuses for multiple enemies. Side schemes. Thematic.", packs: "SM" },
+            { villain: "Unus", name: "The Ally Blender", modulars: "Under Attack", difficulty: "+1", notes: "Anti-Ally. Surprise damage.", packs: "CORE" },
+            { villain: "Unus", name: "Oops, In A Cult", modulars: "Clan Akkaba", difficulty: "+2", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Unus", name: "A New Prelate", modulars: "Deathstrike", difficulty: "+2", notes: "Large minion. Discards. Attachments.", packs: "WOLV." },
+            { villain: "Unus", name: "Strength In Numbers", modulars: "Super Strength", difficulty: "+3", notes: "Steady. ATK boost. High boost icons.", packs: "NEXT" },
+            { villain: "Unus", name: "Infinite Infinites", modulars: "Infinity Gauntlet, Celestial Tech", difficulty: "+4", notes: "Status cards. ATK/SCH bonus. Attachments.", packs: "MTS, APOC" },
+
+            // AGE OF APOCALYPSE CAMPAIGN EXPANSION - FOUR HORSEMEN
+            { villain: "Four Horsemen", name: "Just Horsing Around", modulars: "Goblin Gimmicks, Mutant Slayers", difficulty: "-3", notes: "Medium minions. Attachments. Treacheries.", packs: "GG, NEXT" },
+            { villain: "Four Horsemen", name: "Hold Your Horses", modulars: "Temporal, Fantasy", difficulty: "-2", notes: "Mixed minions. Huge minion (Dragon). Stuns.", packs: "KANG, MOJO" },
+            { villain: "Four Horsemen", name: "Riders On The Storm", modulars: "Power Drain, Zzzax", difficulty: "-2", notes: "Treacheries. Mills encounter deck. Punishes energy resources.", packs: "GG, IRONHRT" },
+            { villain: "Four Horsemen", name: "DEFAULT MODULARS", modulars: "Dystopian Nightmare, Hounds", difficulty: "+0", notes: "Sends alter-ego + brings you back. Small minions. Quickstrike. Thematic.", packs: "APOC, APOC" },
+            { villain: "Four Horsemen", name: "Stable Masters", modulars: "Masters of Evil, Sinister Syndicate", difficulty: "+0", notes: "Large minions. Impactful boost abilities. Attachments. Masters of Evil interaction.", packs: "CORE, HOOD" },
+            { villain: "Four Horsemen", name: "Why The Long Face?", modulars: "Genosha, Military Grade", difficulty: "+1", notes: "Steady. Mixed minions. Attachments.", packs: "APOC, NEXT" },
+            { villain: "Four Horsemen", name: "Forces of Apocalypse", modulars: "Dark Riders, Infinites", difficulty: "+1", notes: "Anti-Ally (defending). Mixed minions. Teamwork. Thematic.", packs: "APOC, APOC" },
+            { villain: "Four Horsemen", name: "Horseman of War", modulars: "Children of Thanos, Extreme Measures", difficulty: "+1", notes: "Mixed minions. Discards upgrades/supports etc.", packs: "MTS, NEXT" },
+            { villain: "Four Horsemen", name: "Horseman of Famine", modulars: "Personal Nightmare, Iceman's Nemesis Set", difficulty: "+1", notes: "Huge side scheme. Discards. 3x medium minions. Indirect damage.", packs: "SM, ICEMAN" },
+            { villain: "Four Horsemen", name: "Horseman of Pestilence", modulars: "Wolverine's Nemesis Set, Domino's Nemesis Set", difficulty: "+1", notes: "3x Mixed minions. Attachments.", packs: "WOLV, DOMINO" },
+            { villain: "Four Horsemen", name: "Oops, We Joined Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+2", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Four Horsemen", name: "Sinister Steeds", modulars: "Iron Spider's Sinister Six, Sinister Assault", difficulty: "+2", notes: "Mixed minions (above average). High boost icons. Adds Spider-Man theme.", packs: "SP//dr, SM" },
+            { villain: "Four Horsemen", name: "Horseman of Death", modulars: "Under Attack, Menagerie Medley", difficulty: "+3", notes: "AntiAlly-. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "CORE, GMW" },
+            { villain: "Four Horsemen", name: "The Fifth Horseman", modulars: "Extreme Risk, Band of Badoon", difficulty: "+4", notes: "Mixed minions. Boss minion. Surprise damage. Impactful boost abilities. Swarm.", packs: "SHURI, GMW" },
+
+            // AGE OF APOCALYPSE CAMPAIGN EXPANSION - APOCALYPSE
+            { villain: "Apocalypse", name: "Gifts From The Past", modulars: "Temporal, Celestial Tech", difficulty: "-2", notes: "Small minions. Stuns. Attachments. Thematic.", packs: "KANG, APOC" },
+            { villain: "Apocalypse", name: "Mutant Followers", modulars: "Extreme Measures, Mutant Insurrection", difficulty: "-1", notes: "Mixed minions. Mutant Liberation Front trait interaction.", packs: "NEXT, NEXT" },
+            { villain: "Apocalypse", name: "Fly Me To The Moon", modulars: "Blue Moon, Armies of Titan", difficulty: "-1", notes: "Anti-Rush. Teamwork. Mixed minions.", packs: "APOC, MTS" },
+            { villain: "Apocalypse", name: "Upgrading the Troops", modulars: "Infinites, Ransacked Armory", difficulty: "-1", notes: "Anti-Ally (defending). Small minions. Attachments (for Prelates). Thematic.", packs: "APOC, HOOD" },
+            { villain: "Apocalypse", name: "DEFAULT MODULARS", modulars: "Infinites, Dark Riders", difficulty: "+0", notes: "Anti-Ally (defending). Mixed minions. Teamwork. Thematic.", packs: "APOC, APOC" },
+            { villain: "Apocalypse", name: "Apocalypse Starts a Band", modulars: "Band of Badoon, Celestial Tech", difficulty: "+1", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm. Attachments.", packs: "GMW, APOC" },
+            { villain: "Apocalypse", name: "Rally the Troops", modulars: "Infinites, Hydra Patrol", difficulty: "+1", notes: "Anti-Ally (defending). Small minions. Thematic.", packs: "APOC, RORS" },
+            { villain: "Apocalypse", name: "Empire of Evil Mutants", modulars: "Brotherhood, Sauron", difficulty: "+2", notes: "Mixed minions. Brotherhood trait interaction.", packs: "MG, ICEMAN" },
+            { villain: "Apocalypse", name: "Ghosts of the Fallen", modulars: "Menagerie Medley, Guerrilla Tactics", difficulty: "+3", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Bonuses for multiple enemies. Side schemes.", packs: "GMW, SM" },
+            { villain: "Apocalypse", name: "Zealots & Prelates", modulars: "Clan Akkaba, Acolytes", difficulty: "+3", notes: "Mixed minions. Adds threat..", packs: "APOC, MG" },
+            { villain: "Apocalypse", name: "Upgrading Apocalypse", modulars: "Infinites, Techno", difficulty: "+3", notes: "Anti-Ally (defending). Small minions. Boss minion. Piercing. Thematic.", packs: "APOC, FALCON" },
+
+            // AGE OF APOCALYPSE CAMPAIGN EXPANSION - DARK BEAST
+            { villain: "Dark Beast", name: "Fresh from the Lab", modulars: "Ransacked Armory, Experimental Weapons", difficulty: "-2", notes: "Attachments. Thematic.", packs: "HOOD, RORS" },
+            { villain: "Dark Beast", name: "Face the Past", modulars: "Temporal", difficulty: "-1", notes: "Small minions. Stuns. Thematic.", packs: "KANG" },
+            { villain: "Dark Beast", name: "DEFAULT MODULARS", modulars: "Dystopian Nightmare", difficulty: "+0", notes: "Sends alter-ego. Thematic.", packs: "APOC" },
+            { villain: "Dark Beast", name: "Osborn's Dark X-Men", modulars: "S.H.I.E.L.D.", difficulty: "+0", notes: "Small minions. Vulnerable. Anti-S.H.I.E.L.D.. Thematic.", packs: "SHIELD" },
+            { villain: "Dark Beast", name: "Beasts of a Feather", modulars: "Beasty Boys", difficulty: "+1", notes: "2x Large minions. Status cards.", packs: "HOOD" },
+            { villain: "Dark Beast", name: "Crimes In Time", modulars: "Crime", difficulty: "+1", notes: "Side schemes.", packs: "MOJO" },
+            { villain: "Dark Beast", name: "Oops, In A Cult", modulars: "Clan Akkaba", difficulty: "+2", notes: "Mixed minions. Adds threat.", packs: "APOC" },
+            { villain: "Dark Beast", name: "Dark Beast's Creations", modulars: "Infinites", difficulty: "+2", notes: "Anti-Ally (defending). Small minions. Thematic.", packs: "APOC" },
+            { villain: "Dark Beast", name: "Time Lord", modulars: "Master of Time", difficulty: "+3", notes: "Mixed minions. Thematic.", packs: "KANG" },
+            { villain: "Dark Beast", name: "Terminator", modulars: "Future Past", difficulty: "+4", notes: "Boss minions.. Victory display. High boost icons. Nemesis interaction. Thematic.", packs: "MG" },
+            { villain: "Dark Beast", name: "Bad Fur Day", modulars: "Super Strength, Osborn Tech", difficulty: "+4", notes: "Steady. ATK bonus. Attachments. High boost icons. Thematic.", packs: "NEXT, SM" },
+
+            // AGE OF APOCALYPSE CAMPAIGN EXPANSION - EN SABAH NUR (APOCALYPSE #2)
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Old Myths", modulars: "Legions of Hel, Fantasy", difficulty: "-2", notes: "Mixed minions. Boss minion (Dragon).", packs: "MTS, MOJO" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Ancient Warriors", modulars: "Temporal, Celestial Tech", difficulty: "-2", notes: "Small minions. Stuns. Attachments. Thematic.", packs: "KANG, APOC" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Mutant Followers", modulars: "Extreme Measures, Mutant Insurrection", difficulty: "-1", notes: "Mixed minions. Mutant Liberation Front trait interaction.", packs: "NEXT, NEXT" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Survival of the Fittest", modulars: "Hounds, Dystopian Nightmare", difficulty: "-1", notes: "Sends alter-ego + brings you back. Quickstrike. Thematic.", packs: "APOC, APOC" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Gifts from the Future", modulars: "Infinites, Shadow King", difficulty: "-1", notes: "Anti-Ally. Mixed minions Stealing allies. Thematic.", packs: "APOC, STORM" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "DEFAULT MODULARS", modulars: "Clan Akkaba, Celestial Tech", difficulty: "+0", notes: "Mixed minions. Adds threat. Attachments. Thematic.", packs: "APOC, APOC" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Mojo-pocalypse", modulars: "Sci-Fi, Crime", difficulty: "+0", notes: "Side schemes. Mixed minions. Toughness environment.", packs: "MOJO, MOJO" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "A New Master", modulars: "Masters of Evil, Sinister Syndicate", difficulty: "+1", notes: "Mixed minions. Impactful boost effects. Masters of Evil trait interaction.", packs: "CORE, HOOD" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Side Scheme Daydream", modulars: "Clan Akkaba, Infinites", difficulty: "+2", notes: "Anti-Ally (defending). Mixed minions. Receives a LOT of threat from form changes. Thematic.", packs: "APOC, APOC" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Zealots & Prelates", modulars: "Clan Akkaba, Acolytes", difficulty: "+2", notes: "Mixed minions. Teamwork. Adds threat.", packs: "APOC, MG" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "The Ally Shredder", modulars: "Menagerie Medley, Under Attack", difficulty: "+2", notes: "Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "GMW, CORE" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Egyptian Snow", modulars: "Whiteout, Frost Giants", difficulty: "+3", notes: "Sends alter-ego. Large minions. Boss minion. Stuns.", packs: "WINTER, MTS" },
+            { villain: "En Sabah Nur (Apocalypse #2)", name: "Genetic Booster Pack", modulars: "Anachronauts, Hard Sound", difficulty: "+4", notes: "Mixed minions. Boss minion. Impactful boost abilities (additional boost cards).", packs: "KANG, SHIELD" },
+
+            // AGENTS OF S.H.I.E.L.D. CAMPAIGN EXPANSION - BLACK WIDOW
+            { villain: "Black Widow", name: "Agent of S.H.I.E.L.D.", modulars: "S.H.I.E.L.D., Experimental Weapons", difficulty: "-1", notes: "Small minions. Vulnerable. Anti-S.H.I.E.L.D.. Attachments. Thematic.", packs: "SHIELD, RORS" },
+            { villain: "Black Widow", name: "DEFAULT MODULARS", modulars: "A.I.M. Abduction, A.I.M. Science", difficulty: "+0", notes: "Small minions. Anti-Ally. A.I.M. trait interaction. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "Black Widow", name: "Elite S.H.I.E.L.D. Squad", modulars: "Cape-Killers, Martial Law", difficulty: "+0", notes: "Small minions. S.H.I.E.L.D. trait interaction. Thematic.", packs: "CW, CW" },
+            { villain: "Black Widow", name: "It's a Trap!", modulars: "Arcade, Dystopian Nightmare", difficulty: "+0", notes: "Side schemes. Adds threat. Sends alterego-. Thematic.", packs: "JUBILEE, APOC" },
+            { villain: "Black Widow", name: "Stay Hydrated", modulars: "Hydra Patrol, Hydra Assault", difficulty: "+0", notes: "Small minions. Extra attacks. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Black Widow", name: "Thunderbolts United", modulars: "Taskmaster, Thunderbolts", difficulty: "+0", notes: "When Revealed abilities. Impactful boost abilities. Thematic.", packs: "SS, SS" },
+            { villain: "Black Widow", name: "Sneaky Super Spy", modulars: "Pale Little Spider, Guerrilla Tactics", difficulty: "+0", notes: "Side schemes. Damage reflection. Adds threat. Thematic. (Black Widow minion surges)", packs: "SHIELD, SM" },
+            { villain: "Black Widow", name: "In My Crosshairs", modulars: "Crossfire's Crew, Beasty Boys", difficulty: "+1", notes: "Resource sink. Possible ATK/SCH boost.", packs: "HOOD, HOOD" },
+            { villain: "Black Widow", name: "Trust Nobody", modulars: "Maria Hill, S.H.I.E.L.D. Executive Board", difficulty: "+2", notes: "", packs: "CW, SHIELD" },
+            { villain: "Black Widow", name: "No Empty Threats", modulars: "Clan Akkaba, Genosha", difficulty: "+3", notes: "Steady. Mixed minions. Adds threat. Anti-Ally. Stuns. Mixed minions. Crossfire's Crew trait interaction. Thematic", packs: "APOC, APOC" },
+            { villain: "Black Widow", name: "Band of the Moon", modulars: "Band of Badoon, Blue Moon", difficulty: "+3", notes: "Mixed minions. Anti-Rush. Surprise damage. Teamwork. Swarm.", packs: "GMW, APOC" },
+            { villain: "Black Widow", name: "A.I.M. for the Head", modulars: "Scientist Supreme, The Doomsday Chair", difficulty: "+4", notes: "Large minions. Vulnerable. Attachments. Thematic.", packs: "SHIELD, CORE" },
+            { villain: "Black Widow", name: "Thunderbolts Are Go", modulars: "Extreme Risk, Techno", difficulty: "+4", notes: "2x Boss minions. Piercing. Thematic.", packs: "SHURI, FALCON" },
+
+            // AGENTS OF S.H.I.E.L.D. CAMPAIGN EXPANSION - BATROC
+            { villain: "Batroc", name: "Diplomatic Crisis", modulars: "Bomb Scare, Ransacked Armory", difficulty: "-2", notes: "Small minions. Attachments.", packs: "CORE, HOOD" },
+            { villain: "Batroc", name: "DEFAULT MODULARS", modulars: "A.I.M. Science, Batroc's Brigade", difficulty: "+0", notes: "Mixed minions. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "Batroc", name: "Expanded Brigade", modulars: "Batroc's Brigade, War Machine's Nemesis Set", difficulty: "+0", notes: "Medium minions. Discarding upgrades. Thematic.", packs: "SHIELD, WAR. M." },
+            { villain: "Batroc", name: "Call the Cops", modulars: "Genosha, S.H.I.E.L.D.", difficulty: "+1", notes: "Steady. Vulnerable. Mixed minions. Anti-S.H.I.E.L.D.", packs: "APOC, SHIELD" },
+            { villain: "Batroc", name: "Hydra Mercenary", modulars: "Weapon Master, Hydra Assault", difficulty: "+1", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Batroc", name: "Hydra Ascendant", modulars: "Winter Soldier's Nemesis, Captain America's Nemesis", difficulty: "+1", notes: "Anti-Rush. Mixed minions (below average). Adds Hydra theme.", packs: "WINTER, CAP. A." },
+            { villain: "Batroc", name: "'We Are Leaping!'", modulars: "Symbiotic Strength, Venom's Nemesis Set", difficulty: "+2", notes: "Extra attacks. Dangerous attacks. Small minions. Adds Symbiote theme.", packs: "SM, VENOM" },
+            { villain: "Batroc", name: "Bat Rock Band", modulars: "Band of Badoon, Celestial Tech", difficulty: "+2", notes: "Mixed minions. Surprise damage. Impactful boost abilities. Swarm. Attachments.", packs: "GMW, APOC" },
+            { villain: "Batroc", name: "Infiltrate the Hellfire Gala", modulars: "Hellfire, Shadowcat's Nemesis Set", difficulty: "+2", notes: "Mixed minions. Hellfire trait interaction.", packs: "MAGNTO, MG" },
+            { villain: "Batroc", name: "Tougher Than He Looks", modulars: "Armies of Titan, Growing Strong", difficulty: "+3", notes: "Small minions. Boss minion. Treacheries. Toughs.", packs: "MTS, SILK" },
+            { villain: "Batroc", name: "Champion Kickboxer", modulars: "Super Strength, Heroes for Hire", difficulty: "+3", notes: "Steady. ATK bonus. Upgrade removal.", packs: "NEXT, CW" },
+            { villain: "Batroc", name: "Brand New Brigade", modulars: "Reavers, Deathstrike", difficulty: "+4", notes: "Mixed minions. Teamwork. Reaver trait interaction. Discarding.", packs: "ROGUE, WOLV" },
+            { villain: "Batroc", name: "A.I.M. for the Head", modulars: "Scientist Supreme, The Doomsday Chair", difficulty: "+4", notes: "Large minions. Vulnerable. Attachments.Thematic.", packs: "SHIELD, CORE" },
+
+            // AGENTS OF S.H.I.E.L.D. CAMPAIGN EXPANSION - M.O.D.O.K.
+            { villain: "M.O.D.O.K.", name: "A.I.M. Inventions", modulars: "Ransacked Armory", difficulty: "-2", notes: "Attachments. Thematic.", packs: "HOOD" },
+            { villain: "M.O.D.O.K.", name: "Brainwashing", modulars: "Trickster Magic", difficulty: "-2", notes: "Large minions. Gives allies. Thematic.", packs: "TT" },
+            { villain: "M.O.D.O.K.", name: "Watch Your A.I.M.", modulars: "A.I.M. Abduction, A.I.M. Science", difficulty: "-1", notes: "Small minions. Anti-Ally. A.I.M. trait interaction. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "M.O.D.O.K.", name: "Adaptive Army", modulars: "Armies of Titan", difficulty: "-1", notes: "Small minions. Side schemes can bring in more Adaptoids.", packs: "MTS" },
+            { villain: "M.O.D.O.K.", name: "DEFAULT MODULAR", modulars: "Scientist Supreme", difficulty: "+0", notes: "Vulnerable. 2x Large minions. Thematic.", packs: "SHIELD" },
+            { villain: "M.O.D.O.K.", name: "Dark Experiments", modulars: "Personal Nightmare", difficulty: "+0", notes: "Huge side scheme. Discards. 2x medium minions. Thematic (clones).", packs: "SM" },
+            { villain: "M.O.D.O.K.", name: "One Step Ahead", modulars: "Arcade", difficulty: "+0", notes: "Side schemes.", packs: "JUBILEE" },
+            { villain: "M.O.D.O.K.", name: "Upgraded Chair", modulars: "Under Attack", difficulty: "+1", notes: "Anti-Ally. Surprise damage. Thematic.", packs: "CORE" },
+            { villain: "M.O.D.O.K.", name: "Big Iron", modulars: "Iron Spider's Sinister Six", difficulty: "+1", notes: "Mixed minions.", packs: "SP//dr" },
+            { villain: "M.O.D.O.K.", name: "M.O.R.E. T.E.C.H.", modulars: "The Doomsday Chair", difficulty: "+3", notes: "Attachments. Thematic. (MODOK minion surges)", packs: "CORE" },
+            { villain: "M.O.D.O.K.", name: "Mental Retaliation", modulars: "Telepathy", difficulty: "+3", notes: "Extra Retaliate. Anti-Ally. SCH bonus. Overkill. Sends alter-ego. Thematic.", packs: "NEXT" },
+            { villain: "M.O.D.O.K.", name: "Stolen Blueprints", modulars: "Osborn Tech", difficulty: "+3", notes: "Attachments. High boost icons. Thematic.", packs: "SM" },
+            { villain: "M.O.D.O.K.", name: "Α.Ι.Μ.'s Elites", modulars: "Pale Little Spider, Hard Sound", difficulty: "+4", notes: "2x Boss minions. Damage reflect. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "M.O.D.O.K.", name: "Ultimate M.O.D.O.K.", modulars: "The Doomsday Chair, Osborn Tech", difficulty: "+4", notes: "Large minion. Attachments. High boost icons. Thematic.", packs: "CORE, SM" },
+            { villain: "M.O.D.O.K.", name: "Stop Hitting Yourself", modulars: "Telepathy, Savage Land", difficulty: "+4", notes: "+2 Retaliate. Anti-Ally. SCH bonus. Overkill. Sends alterego-. Discards. Mixed minions.", packs: "NEXT, APOC" },
+
+            // AGENTS OF S.H.I.E.L.D. CAMPAIGN EXPANSION - THUNDERBOLTS
+            { villain: "Thunderbolts", name: "Government Upgrades", modulars: "Ransacked Armory", difficulty: "-2", notes: "Attachments. Thematic.", packs: "HOOD" },
+            { villain: "Thunderbolts", name: "Changing Sides", modulars: "Trickster Magic", difficulty: "-2", notes: "Large minions. Gives allies. Thematic.", packs: "TT" },
+            { villain: "Thunderbolts", name: "Under Arrest #1", modulars: "S.H.I.E.L.D.", difficulty: "+0", notes: "Small minions. Vulnerable. Anti-S.H.I.E.L.D.. Thematic.", packs: "SHIELD" },
+            { villain: "Thunderbolts", name: "Under Arrest #2", modulars: "Cape-Killers, Martial Law", difficulty: "+0", notes: "Small minions. S.H.I.E.L.D. trait interaction. Thematic.", packs: "CW, CW" },
+            { villain: "Thunderbolts", name: "Thunderbolts United", modulars: "Dangerous Recruits, Thunderbolts", difficulty: "+0", notes: "When Revealed abilities. Impactful boost abilities. Thematic.", packs: "CW, SS" },
+            { villain: "Thunderbolts", name: "City-Wide Showdown", modulars: "Streets of Mayhem", difficulty: "+0", notes: "Changing environment. High boost icons.", packs: "HOOD" },
+            { villain: "Thunderbolts", name: "Ganging Up", modulars: "A Mess of Things", difficulty: "+1", notes: "Extra attack (Gang-Up). Large minion. Stuns.", packs: "GG" },
+            { villain: "Thunderbolts", name: "Crooked Cohorts", modulars: "Masters of Evil", difficulty: "+1", notes: "Large minions. Impactful boost abilities.", packs: "CORE" },
+            { villain: "Thunderbolts", name: "Sharknado", modulars: "Menagerie Medley", difficulty: "+2", notes: "AntiAlly-. Surprise damage. Mixed minions. Impactful boost abilities. Confuses.", packs: "GMW" },
+            { villain: "Thunderbolts", name: "Thunderous Teamwork", modulars: "Guerrilla Tactics", difficulty: "+4", notes: "Bonuses for multiple enemies. Side schemes. Thematic.", packs: "SM" },
+
+            // AGENTS OF S.H.I.E.L.D. CAMPAIGN EXPANSION - BARON ZEMO
+            { villain: "Baron Zemo", name: "Life On Mars", modulars: "Temporal, Ship Command", difficulty: "-3", notes: "Small minions. Stuns. Treacheries. Milano helps pay for the Executive Board.", packs: "KANG, GMW" },
+            { villain: "Baron Zemo", name: "Suspicious Minds", modulars: "Trickster Magic, Whispers of Paranoia", difficulty: "-2", notes: "Large minions. Gives allies. Sends alter-ego. Nemesis interaction. Thematic.", packs: "TT, SM" },
+            { villain: "Baron Zemo", name: "Watch Your A.I.M.", modulars: "A.I.M. Abduction, A.I.M. Science", difficulty: "-1", notes: "Small minions. Anti-Ally. A.I.M. trait interaction. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "Baron Zemo", name: "DEFAULT MODULARS", modulars: "Scientist Supreme, S.H.I.E.L.D.", difficulty: "+0", notes: "Vulnerable. Mixed minions. Anti-S.H.I.E.L.D.. Thematic.", packs: "SHIELD, SHIELD" },
+            { villain: "Baron Zemo", name: "S.H.I.E.L.D. Takeover", modulars: "Martial Law, Cape-Killers", difficulty: "+0", notes: "Vulnerable. Small minions. Thematic.", packs: "CW, CW" },
+            { villain: "Baron Zemo", name: "Reluctant Foes #1", modulars: "New Avengers, Secret Avengers", difficulty: "+0", notes: "Medium minions. Teamwork. Thematic.", packs: "CW, CW" },
+            { villain: "Baron Zemo", name: "Reluctant Foes #2", modulars: "Mighty Avengers, The Initiative", difficulty: "+0", notes: "Medium minions. When Revealed abilities. Impactful boost abilities. Thematic.", packs: "CW, CW" },
+            { villain: "Baron Zemo", name: "Reluctant Foes #3", modulars: "Any other 2 Civil War/Synth. Smackdown modular sets.", difficulty: "+0", notes: "Medium minions. Thematic.", packs: "CW+SS" },
+            { villain: "Baron Zemo", name: "'We Are Unmasked!'", modulars: "Symbiotic Strength, Venom's Nemesis Set", difficulty: "+1", notes: "Extra attacks. Dangerous attacks. Small minions. Adds Symbiote theme.", packs: "SM, VENOM" },
+            { villain: "Baron Zemo", name: "Oops, Still Hydra", modulars: "Weapon Master, Hydra Assault", difficulty: "+1", notes: "Extra attacks. Small minions. Adds Hydra theme.", packs: "RORS, RORS" },
+            { villain: "Baron Zemo", name: "Surprise Hydration", modulars: "Winter Soldier's Nemesis, Hydra Patrol", difficulty: "+1", notes: "Small minions. Anti-Rush. Adds Hydra theme.", packs: "WINTER, RORS" },
+            { villain: "Baron Zemo", name: "Old Man's Plan", modulars: "Masters of Evil, Enchantress", difficulty: "+2", notes: "Anti-Rush. Sends alter-ego. Steals allies. Mixed minions. Boost abilities. Thematic.", packs: "CORE, MTS" },
+            { villain: "Baron Zemo", name: "Army of Evil", modulars: "Masters of Evil, Wrecking Crew", difficulty: "+2", notes: "Large minions. High boost icons. Thematic.", packs: "CORE, HOOD" },
+            { villain: "Baron Zemo", name: "Finding Zemo", modulars: "Menagerie Medley, Guerrilla Tactics", difficulty: "+3", notes: "AntiAlly-. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Bonuses for multiple enemies. Side schemes.", packs: "GMW, SM" },
+
+            // TRICKSTER TAKEOVER SCENARIO PACK - ENCHANTRESS
+            { villain: "Enchantress", name: "Mythical Creatures", modulars: "Fantasy", difficulty: "+0", notes: "Mixed minions. Boss minion (Dragon). Thematic.", packs: "MOJO" },
+            { villain: "Enchantress", name: "DEFAULT MODULAR", modulars: "Trickster Magic", difficulty: "+0", notes: "Large minions. Gives allies. Thematic.", packs: "TT" },
+            { villain: "Enchantress", name: "Magical Treasures", modulars: "Galactic Artifacts", difficulty: "+1", notes: "Victory display side schemes. Attachments. Thematic.", packs: "GMW" },
+            { villain: "Enchantress", name: "A Little Chaos", modulars: "Streets of Mayhem", difficulty: "+1", notes: "Changing environment. High boost icons.", packs: "HOOD" },
+            { villain: "Enchantress", name: "Illusions of Betrayal", modulars: "Spider-Man, Mighty Avengers", difficulty: "+2", notes: "Medium minions. When Revealed abilities.. Impactful boost abilities. Thematic.", packs: "CW, CW" },
+            { villain: "Enchantress", name: "Tricksters", modulars: "Thor's Nemesis Set", difficulty: "+2", notes: "Large minions. Thematic.", packs: "THOR" },
+            { villain: "Enchantress", name: "It's Complicated", modulars: "Frost Giants", difficulty: "+2", notes: "Sends alter-ego. Large minions. Thematic.", packs: "MTS" },
+            { villain: "Enchantress", name: "Twisted Illusions", modulars: "Personal Nightmare, Whispers of Paranoia", difficulty: "+2", notes: "Sends alter-ego. Nemesis interaction. Huge side scheme. Discards. 2x Medium minions. Thematic.", packs: "SM, SM" },
+            { villain: "Enchantress", name: "Beguiling Magic", modulars: "Enchantress", difficulty: "+2", notes: "Anti-Rush. Sends alter-ego. Steals allies. Thematic.", packs: "MTS" },
+            { villain: "Enchantress", name: "'We Are Mystic!'", modulars: "Symbiotic Strength", difficulty: "+3", notes: "Extra attacks. Dangerous attacks. Small minions. Treacheries.", packs: "SM" },
+            { villain: "Enchantress", name: "Asgardian Strength", modulars: "Super Strength", difficulty: "+3", notes: "Steady. ATK boost. High boost icons. Thematic.", packs: "NEXT" },
+            { villain: "Enchantress", name: "Sisterhood of Mutants", modulars: "Deathstrike", difficulty: "+3", notes: "Large minion. Discarding. Thematic.", packs: "WOLV." },
+            { villain: "Enchantress", name: "Old Zemo's Plan", modulars: "Masters of Evil, Captain America's Nemesis", difficulty: "+3", notes: "Mixed minions. Thematic.", packs: "CORE, CAP. A." },
+
+            // TRICKSTER TAKEOVER SCENARIO PACK - GOD OF LIES (LOKI #2)
+            { villain: "God of Lies (Loki #2)", name: "Mythical Creatures", modulars: "Fantasy", difficulty: "+0", notes: "Mixed minions. Boss minion (Dragon). Thematic.", packs: "MOJO" },
+            { villain: "God of Lies (Loki #2)", name: "Treacherous Goblin", modulars: "Goblin Gimmicks", difficulty: "+0", notes: "Attachments. Treacheries.", packs: "GG" },
+            { villain: "God of Lies (Loki #2)", name: "DEFAULT MODULAR", modulars: "Trickster Magic", difficulty: "+0", notes: "Large minions. Gives allies. Thematic.", packs: "TT" },
+            { villain: "God of Lies (Loki #2)", name: "Time Variance Authority", modulars: "Temporal", difficulty: "+1", notes: "Small minions. Stuns. Thematic.", packs: "KANG" },
+            { villain: "God of Lies (Loki #2)", name: "Magical Treasures", modulars: "Galactic Artifacts", difficulty: "+1", notes: "Victory display side schemes. Attachments. Thematic.", packs: "GMW" },
+            { villain: "God of Lies (Loki #2)", name: "Intergalactic Illusion", modulars: "Ship Command, Menagerie Medley", difficulty: "+1", notes: "Treacheries. Anti-Ally. Surprise damage. Mixed minions. Impactful boost abilities. Confuses. Resource generator.", packs: "GMW, GMW" },
+            { villain: "God of Lies (Loki #2)", name: "A Little Chaos", modulars: "Streets of Mayhem", difficulty: "+1", notes: "Changing environment. High boost icons.", packs: "HOOD" },
+            { villain: "God of Lies (Loki #2)", name: "Illusions of Betrayal", modulars: "Spider-Man, Mighty Avengers", difficulty: "+2", notes: "Medium minions. When Revealed abilities.. Impactful boost abilities. Thematic.", packs: "CW" },
+            { villain: "God of Lies (Loki #2)", name: "Loki Laufeyson", modulars: "Frost Giants", difficulty: "+2", notes: "Sends alterego-. Large minions. Thematic.", packs: "MTS" },
+            { villain: "God of Lies (Loki #2)", name: "Trickster", modulars: "Thor's Nemesis Set", difficulty: "+2", notes: "Large minions. Thematic.", packs: "THOR" },
+            { villain: "God of Lies (Loki #2)", name: "Beguiling Magic", modulars: "Enchantress", difficulty: "+2", notes: "Anti-Rush. Sends alter-ego. Steals allies. Thematic.", packs: "MTS" },
+            { villain: "God of Lies (Loki #2)", name: "'We Are Mystic!'", modulars: "Symbiotic Strength", difficulty: "+3", notes: "Extra attacks. Dangerous attacks. Small minions. Treacheries.", packs: "SM" },
+            { villain: "God of Lies (Loki #2)", name: "One Does Not Simply", modulars: "Sauron", difficulty: "+3", notes: "Treacheries. Large minion.", packs: "ICEMAN" },
+            { villain: "God of Lies (Loki #2)", name: "Twisted Illusions", modulars: "Personal Nightmare, Whispers of Paranoia", difficulty: "+3", notes: "Sends alter-ego. Nemesis interaction. Huge side scheme. Discards. 2x Medium minions. Thematic.", packs: "SM, SM" },
+            { villain: "God of Lies (Loki #2)", name: "Not a Frost Giant", modulars: "Growing Strong", difficulty: "+4", notes: "Boss minion. Treacheries.", packs: "SILK" },
+            { villain: "God of Lies (Loki #2)", name: "Mad Titan's Loki", modulars: "Infinity Gauntlet, Frost Giants", difficulty: "+4", notes: "Status cards. ATK/SCH bonus. Sends alter-ego. Large minions. Thematic.", packs: "MTS, MTS" },
+
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const campaignSelect = document.getElementById('campaign-select');
+            const villainSelect = document.getElementById('villain-select');
+            const difficultySelect = document.getElementById('difficulty-select');
+            const resultsContainer = document.getElementById('results-container');
+            const noResults = document.getElementById('no-results');
+
+            // Data structure for campaigns and their villains
+            const campaignData = {
+                "Core Set": ["Rhino", "Klaw", "Ultron"],
+                "Green Goblin": ["Risky Business", "Mutagen Formula"],
+                "The Rise of Red Skull": ["Crossbones", "Absorbing Man", "Taskmaster", "Zola", "Red Skull"],
+                "Galaxy's Most Wanted": ["Brotherhood of Badoon (Drang)", "Infiltrate the Museum (Collector #1)", "Escape the Museum (Collector #2)", "Nebula", "Ronan the Accuser"],
+                "The Mad Titan's Shadow": ["Ebony Maw", "Tower Defense (Proxima/Corvus)", "Thanos", "Hela", "Loki"],
+                "Sinister Motives": ["Sandman", "Venom", "Mysterio", "The Sinister Six", "Venom Goblin"],
+                "Mutant Genesis": ["Sabretooth", "Project Wideawake (Sentinels)", "Master Mold", "Mansion Attack", "Magneto"],
+                "Next Evolution": ["Morlock Siege", "On the Run", "Juggernaut", "Mister Sinister", "Stryfe"],
+                "Age of Apocalypse": ["Unus", "Four Horsemen", "Apocalypse", "Dark Beast", "En Sabah Nur (Apocalypse #2)"],
+                "Agents of SHIELD": ["Black Widow", "Batroc", "M.O.D.O.K.", "Thunderbolts", "Baron Zemo"],
+                "Trickster Takeover": ["Enchantress", "God of Lies (Loki #2)"]
+            };
+
+            function populateCampaigns() {
+                const allOption = document.createElement('option');
+                allOption.value = "All";
+                allOption.textContent = "All Campaigns";
+                campaignSelect.appendChild(allOption);
+
+                Object.keys(campaignData).forEach(campaign => {
+                    const option = document.createElement('option');
+                    option.value = campaign;
+                    option.textContent = campaign;
+                    campaignSelect.appendChild(option);
+                });
+            }
+
+            function populateVillains() {
+                const selectedCampaign = campaignSelect.value;
+                villainSelect.innerHTML = ''; // Clear previous options
+
+                let villains;
+                if (selectedCampaign === "All") {
+                    villains = Object.values(campaignData).flat();
+                } else {
+                    villains = campaignData[selectedCampaign] || [];
+                }
+
+                villains.forEach(villain => {
+                    const option = document.createElement('option');
+                    option.value = villain;
+                    option.textContent = villain;
+                    villainSelect.appendChild(option);
+                });
+
+                updateDifficultyOptions();
+                renderResults();
+            }
+
+            function updateDifficultyOptions() {
+                const selectedVillain = villainSelect.value;
+                difficultySelect.innerHTML = ''; // Clear previous options
+
+                if (!selectedVillain) return;
+
+                const allOption = document.createElement('option');
+                allOption.value = "All";
+                allOption.textContent = "All Difficulties";
+                difficultySelect.appendChild(allOption);
+
+                const availableDifficulties = [...new Set(
+                    scenarioData
+                        .filter(s => s.villain === selectedVillain)
+                        .map(s => s.difficulty)
+                )];
+                
+                availableDifficulties.sort((a, b) => {
+                    const numA = parseInt(a.replace('+', ''), 10);
+                    const numB = parseInt(b.replace('+', ''), 10);
+                    return numA - numB;
+                });
+
+                availableDifficulties.forEach(difficulty => {
+                    const option = document.createElement('option');
+                    option.value = difficulty;
+                    option.textContent = `Difficulty: ${difficulty}`;
+                    difficultySelect.appendChild(option);
+                });
+                
+                difficultySelect.value = "All";
+            }
+            
+            // --- NEW: Function to determine difficulty color ---
+            function getDifficultyColor(difficulty) {
+                const num = parseInt(difficulty.replace('+', ''), 10);
+                if (num <= -1) return 'bg-sky-500 text-sky-950'; // Easy
+                if (num <= 0) return 'bg-green-500 text-green-950'; // Standard
+                if (num <= 2) return 'bg-yellow-400 text-yellow-950'; // Challenging
+                if (num <= 3) return 'bg-orange-500 text-orange-950'; // Hard
+                return 'bg-red-600 text-red-100'; // Expert+
+            }
+
+            function renderResults() {
+                const selectedVillain = villainSelect.value;
+                const selectedDifficulty = difficultySelect.value;
+                
+                let filteredScenarios = scenarioData.filter(scenario => scenario.villain === selectedVillain);
+
+                if (selectedDifficulty !== "All") {
+                    filteredScenarios = filteredScenarios.filter(scenario => scenario.difficulty === selectedDifficulty);
+                }
+
+                resultsContainer.innerHTML = ''; 
+
+                if (filteredScenarios.length === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                    filteredScenarios.forEach(scenario => {
+                        const card = document.createElement('div');
+                        // --- UPDATED CARD STYLES ---
+                        card.className = 'card rounded-lg shadow-lg p-4 flex flex-col transform hover:scale-105 hover:shadow-red-500/20 transition-all duration-300';
+                        
+                        // --- UPDATED INNER HTML FOR CARD ---
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold text-white pr-2 leading-tight">${scenario.name}</h3>
+                                <span class="text-lg font-bold px-3 py-1 rounded-full whitespace-nowrap ${getDifficultyColor(scenario.difficulty)}">${scenario.difficulty}</span>
+                            </div>
+
+                            <div class="flex-grow space-y-3">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400 leading-tight">Modular Set(s):</p>
+                                    <p class="text-base text-blue-300 font-semibold leading-snug">${scenario.modulars.split(',').join(', ')}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400 leading-tight">Pack(s):</p>
+                                    <p class="text-base text-green-300 leading-snug">${scenario.packs.split(',').join(', ')}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400 leading-tight">Notes:</p>
+                                    <p class="text-base text-gray-300 leading-snug">${scenario.notes || 'No notes available.'}</p>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.appendChild(card);
+                    });
+                }
+            }
+
+            // Event Listeners
+            campaignSelect.addEventListener('change', populateVillains);
+            villainSelect.addEventListener('change', () => {
+                updateDifficultyOptions();
+                renderResults();
+            });
+            difficultySelect.addEventListener('change', renderResults);
+
+            // Initial Page Load
+            populateCampaigns();
+            campaignSelect.value = "Core Set";
+            populateVillains();
+        });
+    </script>
+</body>
+</html>
