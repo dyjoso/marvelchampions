@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Champions Campaign Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl min-h-screen flex flex-col items-center">
+        
+        <!-- Header -->
+        <header class="w-full text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-red-500 tracking-tight">Marvel Champions Campaign Guide</h1>
+            <p class="text-gray-400 mt-2">Campaign scenario setup and victory instructions. Campaign Log saves notes for each campaign.</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="w-full flex flex-col sm:flex-row gap-4 mb-8">
+            <div class="flex-1">
+                <label for="campaign-select" class="block mb-2 text-sm font-medium text-gray-300">Campaign</label>
+                <select id="campaign-select" class="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                    <!-- Options populated by JavaScript -->
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="scenario-select" class="block mb-2 text-sm font-medium text-gray-300">Scenario</label>
+                <select id="scenario-select" class="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5" disabled>
+                    <option selected disabled>Select a campaign first</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Scenario Info Display -->
+        <div id="scenario-info" class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm transition-opacity duration-500 opacity-0 hidden">
+            <h2 id="scenario-title" class="text-2xl font-bold text-cyan-300 border-b border-gray-600 pb-3 mb-4"></h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-300 mb-2">Additional Modules Required</h3>
+                    <p id="modules-info" class="text-gray-400 text-sm leading-relaxed"></p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Setup</h3>
+                        <div id="setup-info" class="text-gray-300 text-sm"></div>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Victory</h3>
+                        <div id="victory-info" class="text-gray-300 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Campaign Specific Info -->
+        <div id="campaign-specific-info" class="w-full mt-8 hidden">
+            <!-- Content will be injected by JavaScript -->
+        </div>
+
+        <!-- Campaign Log -->
+        <div id="campaign-log-container" class="w-full mt-8 hidden">
+            <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                <h2 class="text-2xl font-bold text-teal-300 border-b border-gray-600 pb-3 mb-4">Campaign Log</h2>
+                <textarea id="campaign-log" class="bg-gray-900 border border-gray-600 text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 h-48" placeholder="Enter campaign notes here..."></textarea>
+                <div class="flex justify-end mt-4 gap-3">
+                    <button id="save-log" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save Log</button>
+                    <button id="clear-log" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Clear Log</button>
+                </div>
+                 <p id="save-confirm" class="text-xs text-gray-400 mt-2 text-right opacity-0 transition-opacity duration-300">Log saved!</p>
+            </div>
+        </div>
+
+        <!-- Initial Placeholder -->
+        <div id="placeholder" class="w-full text-center text-gray-500 mt-16">
+            <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <p>Your scenario details will appear here.</p>
+        </div>
+    </div>
+
+    <script>
+        const campaignData = {
+            "The Rise of Red Skull": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Crossbones",
+                        modules: "Experimental Weapons, Hydra Assault, Weapon Master, Legions of Hydra & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+The setup instructions on Attack on Mount Athena 1A instruct the players to create the Experimental Weapons deck. To do this, take all four cards in the Experimental Weapons encounter set, shuffle them, and set them facedown next to the main scheme deck. After a card from the Experimental Weapons deck enters play, it is considered to be part of the encounter deck. When that card is discarded it is placed in the encounter deck discard pile.`,
+                        victory: `Each player chooses one of the tech upgrades from the Campaign set and adds it to their deck.
+Record the name of each experimental attachment that entered the game.
+>> Expert Campaign: Record each identity's remaining HP and any cards added to their deck.`
+                    },
+                    {
+                        name: "Scenario 2 - Absorbing Man",
+                        modules: "Hydra Patrol & Standard",
+                        setup: `Each player searches their deck for all cards with the setup keyword and puts them into play.
+Shuffle each experimental attachment recorded in the campaign log into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may add 1 random obligation from their expert campaign set to their deck to heal their identity to full HP.`,
+                        victory: `Record the number of delay counters on the main scheme in the campaign log.
+>> Each player may choose one of the Basic condition upgrades from the Campaign set and add it to their deck.
+Expert Campaign: Record each identity's remaining HP and any cards added to their deck`
+                    },
+                    {
+                        name: "Scenario 3 - Taskmaster",
+                        modules: "Hydra Patrol, Weapon Master & Standard",
+                        setup: `Each player searches their deck for all cards with the setup keyword and puts them into play.
+Shuffle each experimental attachment recorded in the campaign log into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may add 1 random obligation from their expert campaign set to their deck to heal their identity to full HP.`,
+                        victory: `Each player who rescued one or more allies from the Taskmaster encounter set adds those allies to their deck and records their names in the campaign log.
+Expert Campaign: Record each identity's remaining HP and any cards added to their deck`
+                    },
+                    {
+                        name: "Scenario 4 - Zola",
+                        modules: "Under Attack & Standard",
+                        setup: `Each player searches their deck for all cards with the setup keyword and puts them into play.
+Shuffle each experimental attachment recorded in the campaign log into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may add 1 random obligation from their expert campaign set to their deck to heal their identity to full HP.`,
+                        victory: `Each player engaged with an enemy records they are engaged with an enemy in the campaign log.
+If the Hydra Prison side scheme is still in play, record the name of each ally underneath it in the campaign log. Those allies cannot be included in any deck for the remainder of the campaign.
+If the Hydra Prison side scheme is not in play, each player in hero form may replace their Basic condition upgrade with its Improved side.
+Expert Campaign: Record each identity's remaining HP and any cards added to their deck.`
+                    },
+                    {
+                        name: "Scenario 5 - Red Skull",
+                        modules: "Hydra Assault, Hydra Patrol & Standard",
+                        setup: `The setup instructions on The Rise of Red Skull 1A instructs the players to create a side-scheme deck. To do this, search the encounter deck for each side scheme and shuffle them together into their own deck. Set this next to the main-scheme deck. This deck has its own discard pile.
+Each player searches their deck for all cards with the setup keyword and puts them into play.
+Shuffle each experimental attachment recorded in the campaign log into the encounter deck.
+Place X threat counters on the main scheme, where X is the number of delay counters recorded in the campaign log. Place X threat per-player if you are playing an Expert Campaign.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may add 1 random obligation from their expert campaign set to their deck to heal their identity to full HP.
+Expert Campaign: Each player who was recorded as being engaged with an enemy deals themselves an encounter card.`,
+                        victory: `Hydra is defeated and the players win the campaign!
+Expert Campaign: If the players lose this game, Red Skull conquers the world and the players lose the campaign.`
+                    }
+                ]
+            },
+
+            "Galaxy's Most Wanted": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Brotherhood of Badoon",
+                        modules: "Band of Badoon, Ship Command & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+Reveal the Badoon Blitz side scheme (use the reverse side for expert mode).
+Shuffle the Badoon Headhunter minion into the encounter deck.`,
+                        victory: `Campaign Log: Record units in each player's respective Unspent Units box:
+• Record 1 unit for each player.
+• Record a number of units for each player (to a maximum of 3 units) equal to the victory values on encounter cards in the victory display.
+• Record 1 unit for each player if there are no minions in play.
+• Record 1 unit for each player if the main scheme is on stage 1B (Terrestrial Invasion).
+If Badoon Headhunter is in the victory display, mark the box beside the scenario name in the Headhunter Defeated? section.
+Expert Campaign: Record each identity's remaining HP.`
+                    },
+                    {
+                        name: "Scenario 2 - Infiltrate the Museum",
+                        modules: "Galactic Artifacts, Menagerie Medley & Standard",
+                        setup: `Reveal the Gallery of Splendor side scheme (use the reverse side for expert mode).
+If there is at least 1 mark in the Headhunter Defeated? section of the campaign log, shuffle the On the Hunt treachery (from the Badoon Headhunter modular set) into the encounter deck.
+Expert Campaign: Each player may subtract 1 unit from their Unspent Units to heal their identity to full HP.
+Expert Campaign: Each player must choose 1 card from their hand and put it face-up into The Collection.`,
+                        victory: `Campaign Log: Record units in each player's respective Unspent Units box:
+• Record 1 unit for each player if there are 1-per player or fewer cards in The Collection.
+• Record 1 unit for each player if there is no threat on the main scheme.
+In the Cards in The Collection section, record the title of each player card in The Collection.`
+                    },
+                    {
+                        name: "Scenario 3 - Escape the Museum",
+                        modules: "Galactic Artifacts, Menagerie Medley, Ship Command & Standard",
+                        setup: `Reveal the There Is No Escape side scheme (use the reverse side for expert mode).
+Each player must search their deck, discard pile, and hand for each of their cards recorded in the Cards in The Collection section of the campaign log, then remove those cards from the game. Each player draws up to their hand size.
+If the number of marks in the Headhunter Defeated? section of the campaign log is equal to or greater than: (1) shuffle the On the Hunt treachery into the encounter deck, (2) shuffle the Dead to Rights treachery into the encounter deck.
+Expert Campaign: Each player must discard cards from the top of the encounter deck until they discard an attachment, then reveal that card.`,
+                        victory: `Campaign Log: Record units in each player's respective Unspent Units box.
+• For every 2 Galactic Artifacts side schemes in the victory display, record 1 unit for each player.`
+                    },
+                    {
+                        name: "Scenario 4 - Nebula",
+                        modules: "Power Stone, Ship Command, Space Pirates & Standard",
+                        setup: `Reveal the Guerrilla Tactics side scheme (use the reverse side for expert mode).
+Shuffle each Galactic Artifacts side scheme recorded in the Galactic Artifacts Side Schemes in the Victory Display section of the campaign log into the encounter deck. Perform the following for each side scheme shuffled in this way:
+• Hujadarian Monarch Egg: Place 1 evasion counter on Nebula's Ship.
+• Magical Teapot: Deal the first player 1 facedown encounter card.
+• Philosopher's Stone: Give Nebula 1 facedown boost card.
+• Crystal Ball: Give Nebula a tough status card.
+If the number of marks in the Headhunter Defeated? section of the campaign log is equal to or greater than: (1) shuffle the On the Hunt treachery into the encounter deck, (2) shuffle the Dead to Rights treachery into the encounter deck, (3) shuffle the Headhunter's Henchman minion into the encounter deck.
+Expert Campaign: Discard cards from the top of the encounter deck until a technique attachment is discarded this way, then attach that card to Nebula.`,
+                        victory: `Campaign Log: Record units in each player's respective Unspent Units box:
+• Record 1 unit for each player if there are 1 or fewer evasion counters on the Nebula's Ship environment.
+• Record 1 unit for each player if the main scheme is on stage 1B (The Art of Evasion).
+If the Power Stone is attached to an identity, record that identity's name in the Power Stone Control section.
+Record the number of evasion counters on Nebula's Ship in the Evasion Counters section.`
+                    },
+                    {
+                        name: "Scenario 5 - Ronan the Accuser",
+                        modules: "Kree Militants, Power Stone, Ship Command & Standard",
+                        setup: `(Optional) Reveal the Kree Supremacy side scheme (use the reverse side for expert mode).
+If a player's identity was recorded in the Power Stone Control section of the campaign log, search the encounter deck and discard pile for one copy of the You Stand Accused! treachery, then deal that card to that player as a facedown encounter card.
+Search the encounter deck and discard pile for one copy of the Pincer Maneuver side scheme and reveal it. Place X-per player additional threat on Pincer Maneuver, where X is equal to 3 minus the recorded number in the Evasion Counters section of the campaign log.
+If the number of marks in the Headhunter Defeated? section in the campaign log is equal to or greater than: (1) shuffle the On the Hunt treachery into the encounter deck, (2) shuffle the Dead to Rights treachery into the encounter deck, (3) shuffle the Headhunter's Henchman minion into the encounter deck, (4) shuffle the Fugitive Recovery side scheme into the encounter deck.
+Expert Campaign: Place an additional 1-per player threat on the main scheme.`,
+                        victory: `Ronan the Accuser is defeated and the players win the campaign!
+Expert Campaign: If the players lose this game, they lose the campaign.`
+                    }
+                ],
+                campaignInfo: `
+                    <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                        <h2 class="text-2xl font-bold text-red-300 border-b border-gray-600 pb-3 mb-4">The Market & Common Rules</h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-red-400 mb-2">The Market</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p>Between scenarios, players can spend the units recorded in their campaign log to add cards from The Market to their deck. Cards added to a player's deck this way must be included in that player's deck for the rest of the campaign and do not count toward the maximum or minimum deck size.</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-red-400 mb-2">Common Victory / Setup</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p><strong>Setup (All Scenarios):</strong> Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may subtract 1 unit from their Unspent Units to heal their identity to full HP.</p>
+                                    <p><strong>Victory (All Scenarios):</strong> Record units for each player (max 3) equal to victory values on cards in the victory display. Record 1 unit for each player. If Badoon Headhunter is in the victory display, mark the box for the scenario in the Headhunter Defeated? section.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            "The Mad Titan's Shadow": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Ebony Maw",
+                        modules: "Black Order, Armies of Titan & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+Put Secure the Landing Pad side scheme into play.
+Shuffle Security Breach side scheme into the encounter deck.`,
+                        victory: `If Secure the Landing Pad was defeated, add Cosmo to the campaign pool.
+If Attack on Knowhere 1B was completed, add Security Breach to the campaign pool.
+Expert Campaign: Record each identity's remaining hit points (HP) in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 2 - Tower Defense",
+                        modules: "Armies of Titan & Standard",
+                        setup: `Modular Difficulty (optional): Place damage on the Avengers Tower to increase difficulty: (standard/expert /heroic) = (1/2/3) damage per player.
+Put Save the Shawarma Place side scheme into play.
+If Security Breach is in the campaign pool, shuffle it into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on one of the main schemes to heal their identity to full HP value.`,
+                        victory: `If Save the Shawarma Place was defeated, add Shawarma to the campaign pool.
+If Black Swan is NOT in the victory display, add her to the campaign pool.
+If Avengers Tower has the damaged trait, record that in the campaign log.
+Expert Campaign: Record each identity's remaining HP in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 3 - Thanos",
+                        modules: "Infinity Gauntlet, Black Order, Children of Thanos & Standard",
+                        setup: `Put Hack the Sanctuary's Computer side scheme into play.
+If Cosmo is in the campaign pool, put him into play under the first player's control.
+If Security Breach is in the campaign pool, shuffle it into the encounter deck.
+If Shawarma is in the campaign pool, each player shuffles one copy of Shawarma into their deck.
+If Black Swan is in the campaign pool, put her into play engaged with the first player.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP value.
+If Avengers Tower had the damaged trait, deal 3 damage to each identity.`,
+                        victory: `If Defensive Protocols is NOT in the victory display, add System Shock to the campaign pool.
+If Infinity Stones 1B was completed, record that in the campaign log.
+Expert Campaign: Record each identity's remaining HP in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 4 - Hela",
+                        modules: "Legions of Hel, Frost Giants & Standard",
+                        setup: `Put Find the Norm Stones side scheme into play.
+Shuffle the Summoned Back treachery into the encounter deck.
+If Shawarma is in the campaign pool, each player shuffles one copy of Shawarma into their deck.
+If System Shock is in the campaign pool, each player shuffles one copy of System Shock into their deck.
+If The Infinity Stones 1B was completed, each player discards the top half of their deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP value.`,
+                        victory: `If Find the Norn Stones was defeated, add Norn Stone to the campaign pool.
+If Retrieve Odin's Armor is in the victory display, add Odin to the campaign pool.
+Expert Campaign: Record each identity's remaining HP in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 5 - Loki",
+                        modules: "Infinity Gauntlet, Enchantress, Frost Giants & Standard",
+                        setup: `Put Open the Dungeons side scheme into play.
+Shuffle the Summoned Back treachery into the encounter deck.
+If Shawarma is in the campaign pool, each player shuffles one copy of Shawarma into their deck.
+If System Shock is in the campaign pool, each player shuffles one copy of System Shock into their deck.
+If The Infinity Stones 1B was completed, each player discards the top half of their deck.
+If Norn Stone is in the campaign pool, each player puts one copy of the Norn Stone upgrade into play on its setup side.
+If Odin is in the campaign pool, put Odin into play on his king side.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP value.`,
+                        victory: `The number of Lokis that must be defeated to win the campaign depends on the difficulty level chosen: (rookie/standard/expert/heroic) = (1/2/3/4) versions of Loki.
+Expert Campaign: If the players lose this game, they lose the campaign.`
+                    }
+                ]
+            },
+
+            "Sinister Motives": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Sandman",
+                        modules: "City in Chaos, Down to Earth & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+Put the Public Outcry environment into play (standard or expert mode side faceup).
+Shuffle Smear Campaign treachery into the encounter deck.
+Choose 1 Campaign-Community Service side scheme at random and shuffle it into the encounter deck.
+Expert Campaign: Place 2 additional sand counters on the City Streets environment. Resolve its Surging Sands ability.`,
+                        victory: `Reputation Track: Using the Conditions section, calculate total reputation value then mark that many nodes (starting at the top).
+Campaign Log: If a Campaign-Community Service side scheme is in the victory display, record its title in the log.
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 2 - Venom",
+                        modules: "Down to Earth, Symbiotic Strength & Standard",
+                        setup: `Put the Public Outcry environment into play.
+Shuffle Smear Campaign treachery into the encounter deck.
+Choose 1 Campaign - Community Service side scheme at random (that is not recorded in the log) and shuffle it into the encounter deck.
+Follow any setup instructions from the reputation track for any marked nodes.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may deal themself 1 facedown encounter card to heal their identity to full HP.
+Expert Campaign: Place 1 facedown boost card on each identity.`,
+                        victory: `Calculate total reputation value and mark that many nodes.
+If a Campaign - Community Service side scheme is in the victory display, record its title in the log.
+Expert Campaign: Record each identity's remaining HP.`
+                    },
+                    {
+                        name: "Scenario 3 - Mysterio",
+                        modules: "Personal Nightmare, Whispers of Paranoia & Standard",
+                        setup: `Put the Venom ally card into play under the first player's control.
+Put the Public Outcry environment into play.
+Shuffle Smear Campaign treachery and the Snitches Get Stitches attachment into the encounter deck.
+Choose 1 Campaign-Community Service side scheme at random (that is not recorded in the log) and shuffle it into the encounter deck.
+Follow any setup instructions from the reputation track for any marked nodes.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may deal themself 2 facedown encounter cards to heal their identity to full HP.
+Expert Campaign: Each player must shuffle the top 2 cards of the encounter deck into their deck.`,
+                        victory: `Calculate total reputation value and mark that many nodes.
+If a Campaign Community Service side scheme is in the victory display, record its title in the log.
+Waking Nightmare: Count and record the total number of illusion cards in all player decks.
+Expert Campaign: Record each identity's remaining HP.`
+                    },
+                    {
+                        name: "Scenario 4 - Sinister Six",
+                        modules: "Guerrilla Tactics & Standard",
+                        setup: `Put the Venom ally card into play under the first player's control.
+Put the Public Outcry environment into play.
+Shuffle Smear Campaign treachery and the Snitches Get Stitches attachment into the encounter deck.
+Choose 1 Campaign Community Service side scheme at random (that is not recorded in the log) and shuffle it into the encounter deck.
+Place threat on the Light at the End scheme equal to the number recorded under Waking Nightmare.
+Follow any setup instructions from the reputation track for any marked nodes.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may deal themself 2 facedown encounter cards to heal their identity to full HP.`,
+                        victory: `Calculate total reputation value and mark that many nodes.
+If a Campaign - Community Service side scheme is in the victory display, record its title in the log.
+Last Ones Standing: record the name of each villain in play.
+Expert Campaign: Record each identity's remaining HP.`
+                    },
+                    {
+                        name: "Scenario 5 - Venom Goblin",
+                        modules: "Symbiotic Strength, Goblin Gear & Standard",
+                        setup: `Put the Public Outcry environment into play.
+Shuffle Smear Campaign treachery into the encounter deck.
+From the Sinister Assault modular set, take each minion recorded under Last Ones Standing and shuffle them into the encounter deck.
+Follow any setup instructions from the reputation track for any marked nodes.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may deal themself 3 facedown encounter cards to heal their identity to full HP.
+Expert Campaign: Place 1-per-player additional threat on each main scheme.`,
+                        victory: `You win the campaign!
+Calculate total reputation value then mark that many nodes (optional).
+Count the number of marked nodes, this is your total campaign reputation score.
+Expert Campaign: If players lose this game, Venom Goblin takes control of NYC and players lose the campaign.`
+                    }
+                ],
+                campaignInfo: `
+                    <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                        <h2 class="text-2xl font-bold text-yellow-300 border-b border-gray-600 pb-3 mb-4">Reputation Track Information</h2>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-yellow-400 mb-2">Setup Effects</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p><strong>REP 1:</strong> Shuffle each card recorded in the Osborn Tech section of the campaign log into the encounter deck.</p>
+                                    <p><strong>REP 5:</strong> Place 1-per-player threat on the main scheme.</p>
+                                    <p><strong>REP 9:</strong> Each player must search the encounter deck and discard pile for a minion and put it into play engaged with them. Deal each player who did not put a minion into play this way 1 facedown encounter card.</p>
+                                    <p><strong>REP 13:</strong> Each player flips their Tech Upgrade to its enhanced side.</p>
+                                    <p><strong>REP 17:</strong> Each player searches their deck and discard pile for 1 copy of their Planning Ahead card and adds it to their hand. The first player then searches the encounter deck and discard pile for a scenario-specific side scheme, reveals it, and places 1-per-player threat on it.</p>
+                                    <p><strong>REP 21:</strong> Each player may put a Helicarrier support into play under their control.</p>
+                                    <p><strong>REP 25:</strong> Each player may put a Symbiote Suit upgrade into play under their control. Then deal 1 facedown encounter card to each player.</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-yellow-400 mb-2">Immediate Effects</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p><strong>REP 1: S.H.I.E.L.D Tech:</strong> Each player takes 3 Campaign - S.H.I.E.L.D Tech upgrades at random and chooses one to keep for the rest of the campaign. Upgrades start on the basic side and do not count against min or max deck size. Then randomly choose one Osborn Tech attachment and record it in the campaign log.</p>
+                                    <p><strong>REP 5:</strong> During step 13 of game setup, each player may take one additional mulligan.</p>
+                                    <p><strong>REP 9: Aspect Advantage:</strong> Each player chooses an aspect card from any aspect and adds the max number of copies of that card to their deck for the rest of the campaign. These cards do not count toward min or max deck size.</p>
+                                    <p><strong>REP 13:</strong> Randomly choose one Osborn Tech attachment and record it in the campaign log.</p>
+                                    <p><strong>REP 17: Planning Ahead:</strong> Each player chooses one card from their deck and records it in the campaign log.</p>
+                                    <p><strong>REP 21:</strong> Randomly choose one Osborn Tech attachment and record it in the campaign log.</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-yellow-400 mb-2">Reputation Scoring</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p><strong>(+X)</strong> Victory points in the victory display</p>
+                                    <p><strong>(+1)</strong> No minions in play</p>
+                                    <p><strong>(+1)</strong> No side schemes in play</p>
+                                    <p><strong>(+1)</strong> No threat on the main scheme</p>
+                                    <p><strong>(+1)</strong> Fewer than 1-per-player acceleration tokens in play</p>
+                                    <p><strong>(+1)</strong> No defeated identities</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            "Mutant Genesis": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Sabretooth",
+                        modules: "Brotherhood, Mystique & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+Each player chooses 1 of the 4 campaign roles and takes one random upgrade from the chosen role, putting it into play under their control.
+Each player may add 1 copy of an event and/or 1 copy of an upgrade from their role's associated aspects.
+Shuffle the Future Past modular set and set them aside as the Future Past deck.
+Reveal the Frightened Police side scheme.
+Modular Difficulty (optional): Add 0, 1, 2, or 3 damage to Robert Kelly (for skirmish, standard, expert and heroic modes, respectively).`,
+                        victory: `If the Frightened Police side scheme was defeated, record it in the campaign log.
+Remove each Future Past card in the victory display from the campaign. Add each Future Past card found in the encounter deck, discard pile and in play to the campaign log.
+Remove each role upgrade that began the game in play from the campaign.
+Expert Campaign: Record each identity's remaining hit points (HP). Note: if a player's remaining HP is greater than their base HP, record their base HP in the log.`
+                    },
+                    {
+                        name: "Scenario 2 - Project Wideawake",
+                        modules: "Sentinels, Zero Tolerance & Standard",
+                        setup: `Shuffle each Future Past card recorded in the campaign log into the encounter deck. Shuffle the remaining Future Past cards and set them aside.
+If Frightened Police was defeated, put 1 random role upgrade into play under your control.
+Each player may add 1 copy of an event and/or 1 copy of an upgrade from their role's associated aspects.
+Reveal the Enemy of my Enemy side scheme.
+Modular Difficulty (optional): Place 0, 1, 2, or 3 facedown cards from the top of your deck under Operation Zero Tolerance (for skirmish, standard, expert and heroic modes, respectively).
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP.`,
+                        victory: `If Enemy of my Enemy was defeated, record it in the log.
+Remove each defeated Future Past card from the campaign. Record each other Future Past card used in this scenario in the campaign log.
+Remove each role upgrade that began the game in play from the campaign.
+If Jubilee is in play, record it in the log.
+Record each captive ally that entered play in the log.
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 3 - Master Mold",
+                        modules: "Sentinels, Zero Tolerance & Standard",
+                        setup: `Shuffle each Future Past card recorded in the campaign log into the encounter deck. Shuffle the remaining Future Past cards and set them aside.
+If Jubilee is in the log, put her into play.
+Each captive ally in the log may be shuffled into any player's deck.
+If Enemy of my Enemy was defeated, put 1 random role upgrade into play under your control.
+Each player may add 1 copy of an event and/or 1 copy of an upgrade from their role's associated aspects.
+Reveal the Find the Prisoners side scheme.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP.`,
+                        victory: `If Find the Prisoners was defeated, record it in the log.
+Remove each defeated Future Past card from the campaign. Record each other Future Past card used in this scenario in the campaign log.
+Remove each role upgrade that began the game in play from the campaign.
+If Jubilee is in play, record it in the log, otherwise remove her from the log.
+Allies that ended the game under Find the Prisoners or Rescue Captives can no longer be used this campaign.
+Expert Campaign: Record each identity's remaining HP.`
+                    },
+                    {
+                        name: "Scenario 4 - Mansion Attack",
+                        modules: "Brotherhood, Mystique & Standard",
+                        setup: `Shuffle each Future Past card recorded in the campaign log into the encounter deck. Shuffle the remaining Future Past cards and set them aside.
+If Jubilee is in the log, put her into play.
+Each captive ally in the log may be shuffled into any player's deck.
+If Find the Prisoners was defeated, put 1 random role upgrade into play under your control.
+Each player may add 1 copy of an event and/or 1 copy of an upgrade from their role's associated aspects.
+Reveal the Surprise Attack side scheme.
+Expert Campaign: Set each player's HP to the recorded value. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP.`,
+                        victory: `Players win by defeating 1/2/3/4 villains (based on skirmish/standard/expert/heroic modes).
+If Surprise Attack is defeated, record it in the log.
+Remove each defeated Future Past card from the campaign. Record each other Future Past card used in this scenario in the campaign log.
+Remove each role upgrade that began the game in play from the campaign.
+If Jubilee is in play, record it in the log, otherwise remove her from the log.
+Expert Campaign: Record each identity's remaining HP.`
+                    },
+                    {
+                        name: "Scenario 5 - Magneto",
+                        modules: "Acolytes & Standard",
+                        setup: `Shuffle each Future Past card recorded in the campaign log into the encounter deck. Shuffle the remaining Future Past cards and set them aside.
+If Jubilee is in the log, put her into play.
+Each captive ally in the log may be shuffled into any player's deck.
+If Surprise Attack was defeated, put 1 random role upgrade into play under your control.
+Each player may add 1 copy of an event and/or 1 copy of an upgrade from their role's associated aspects.
+Reveal the Magneto's Fortress side scheme.
+Expert Campaign: Set each player's HP to the recorded value. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP.`,
+                        victory: `Magneto is defeated and the players win the campaign!
+Expert Campaign: If the players lose this game, Magneto rules the world with an iron fist and the players lose the campaign.`
+                    }
+                ],
+                campaignInfo: `
+                    <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                        <h2 class="text-2xl font-bold text-blue-300 border-b border-gray-600 pb-3 mb-4">Campaign Roles</h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700 col-span-2">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Role Rules</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p>During setup for Scenario 1, players choose a role for the entire campaign. Each player must choose a different role. Each role comes with its own set of 5 upgrades, which can be earned by defeating the campaign-specific side scheme in each scenario.</p>
+                                    <p>During scenario setup, each player may add up to 1 copy of an event and/or 1 copy of an upgrade to their deck from their role's associated aspects. These cards do not count toward deck size limits.</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Brawler <span class="text-xs text-gray-400">(Aggression / Protection)</span></h3>
+                            </div>
+                             <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Commander <span class="text-xs text-gray-400">(Aggression / Leadership)</span></h3>
+                            </div>
+                             <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Defender <span class="text-xs text-gray-400">(Justice / Protection)</span></h3>
+                            </div>
+                             <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Peacekeeper <span class="text-xs text-gray-400">(Justice / Leadership)</span></h3>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            "Next Evolution": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Morlock Siege",
+                        modules: "Military Grade, Mutant Slayers & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+Players as a group choose 1 player side scheme (see Player Side Scheme summary), put it into play and record that it has been chosen. Take the corresponding encounter card and shuffle it into the encounter deck.`,
+                        victory: `Record the title of each villain under Routed as 'Marauders Defeated'.
+Record the number of Morlock allies still in play as 'Morlocks Saved'.
+If there is a campaign environment in play, mark it as 'Earned' in the campaign log.
+Expert Campaign: Record each identity's remaining hit points (HP). Note: if a player's remaining HP is greater than their base HP, record their base HP in the log.`
+                    },
+                    {
+                        name: "Scenario 2 - On the Run",
+                        modules: "Military Grade, Mutant Slayers, Nasty Boys & Standard",
+                        setup: `Before resolving setup text on Gotta Get Away (103A), remove each villain recorded under 'Marauders Defeated' from the game (minions with the same title remain in the encounter deck).
+For each Morlock saved in the previous scenario, choose a player to search their deck for one card, add that card to their hand, and shuffle their deck.
+If there is an environment marked as 'Earned', put that environment into play and give each enemy a tough status card.
+Players as a group choose 1 player side scheme (see Player Side Scheme summary) that has not been chosen previously, put it into play and record that it has been chosen. Take each encounter card corresponding to a player side scheme that is marked as chosen and shuffle them into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP.`,
+                        victory: `Mark each campaign environment in play as 'Earned' in the campaign log (if it is not already).
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 3 - Juggernaut",
+                        modules: "Hope Summers, Black Tom Cassidy & Standard",
+                        setup: `Put each environment marked as 'Earned' into play in any order.
+Place 1 momentum counter on Juggernaut for each campaign environment in play.
+Shuffle Black Tom Cassidy and 1-per-player Creeping Willow minion together and deal one of these cards to each player as a facedown encounter card. Shuffle the remaining card into the encounter deck.
+Players as a group choose 1 player side scheme (see Player Side Scheme summary) that has not been chosen previously, put it into play and record that it has been chosen. Take each encounter card corresponding to a player side scheme that is marked as chosen and shuffle them into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may deal themselves 1 facedown encounter card to heal their identity to full HP.`,
+                        victory: `Record the amount of damage on Hope Summers.
+Mark each campaign environment in play as 'Earned' in the campaign log (if it is not already).
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 4 - Mister Sinister",
+                        modules: "Flight, Super Strength, Telepathy, Hope Summers, Nasty Boys & Standard",
+                        setup: `Put each environment marked as 'Earned' into play in any order.
+Put the Teleported Away side scheme into play with an additional 1-per-player threat on it for each campaign environment in play.
+The players choose to either place damage on Hope Summers equal to her damage recorded from the previous scenario, or place that much threat on Teleported Away.
+Players as a group choose 1 player side scheme (see Player Side Scheme summary) that has not been chosen previously, put it into play and record that it has been chosen. Take each encounter card corresponding to a player side scheme that is marked as chosen and shuffle them into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 1 acceleration token on the main scheme to heal their identity to full HP.`,
+                        victory: `Record the amount of damage on Hope Summers.
+Mark each campaign environment in play as 'Earned' in the campaign log (if it is not already).
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 5 - Stryfe",
+                        modules: "Hope Summers, Extreme Measures, Mutant Insurrection & Standard",
+                        setup: `Put each environment marked as 'Earned' into play in any order.
+Place 1-per-player threat on Stryfe's Grasp for each campaign environment in play.
+The players choose to either place damage on Hope Summers equal to her damage recorded from the previous scenario, or place that much threat on Stryfe's Grasp.
+In player order, each player discards cards from the encounter deck until they discard a minion or a PSIONIC attachment and reveal that card. Then shuffle the encounter discard pile into the encounter deck.
+Players as a group choose 1 player side scheme (see Player Side Scheme summary) that has not been chosen previously, put it into play and record that it has been chosen. Take each encounter card corresponding to a player side scheme that is marked as chosen and shuffle them into the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may deal themselves 1 facedown encounter card to heal their identity to full HP.
+Expert Campaign: If the players lose this game, Stryfe escapes into the past and the campaign is lost.`,
+                        victory: `Stryfe is defeated and the players win the campaign!`
+                    }
+                ],
+                campaignInfo: `
+                    <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                        <h2 class="text-2xl font-bold text-green-300 border-b border-gray-600 pb-3 mb-4">Player Side Schemes</h2>
+                        <div class="text-gray-300 text-sm">
+                            <p class="mb-4">These are the player side schemes available for this campaign and their corresponding encounter card.</p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-2 border-b border-gray-600 bg-gray-800">Player Side Scheme</th>
+                                            <th class="p-2 border-b border-gray-600 bg-gray-800">Encounter Card</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="bg-gray-800/50">
+                                            <td class="p-2 border-b border-gray-700">Assemble the Team</td>
+                                            <td class="p-2 border-b border-gray-700">Malice</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border-b border-gray-700">Establish Safehouse</td>
+                                            <td class="p-2 border-b border-gray-700">Vanisher</td>
+                                        </tr>
+                                        <tr class="bg-gray-800/50">
+                                            <td class="p-2 border-b border-gray-700">Gear Up</td>
+                                            <td class="p-2 border-b border-gray-700">Overburdened</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border-b border-gray-700">Mission Prep</td>
+                                            <td class="p-2 border-b border-gray-700">Scrambler</td>
+                                        </tr>
+                                        <tr class="bg-gray-800/50">
+                                            <td class="p-2 border-b border-gray-700">Practice Maneuvers</td>
+                                            <td class="p-2 border-b border-gray-700">Lady Mastermind</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2">Prepare Defenses</td>
+                                            <td class="p-2">Under Pressure</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`
+            },
+             "Age of Apocalypse": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Unus",
+                        modules: "Infinites, Dystopian Nightmare, Age of Apocalypse & Standard",
+                        setup: `Record player identity, which cannot change during the campaign.
+Randomly select a mission side scheme (excluding Protect the Professor) and follow setup instructions for it in the campaign log.
+Randomly select an Overseer minion and add it to the mission area. Put the Mission Rules card next to it.
+The first player takes control of the Mission Team (171A) support card, Mission side faceup.
+Each player searches their deck for an ally and adds it to their hand (this card counts towards hand size).
+Ensure that all cards with the setup keyword are removed from the encounter deck.
+Modular Difficulty: Place 0/1/2/3 threat per player on Gene Pool for skirmish/standard/expert/heroic mode.`,
+                        victory: `Strike the mission side scheme from the campaign log.
+Follow the instructions in the campaign log for the mission side scheme, depending on whether it was defeated or not.
+If the Overseer minion was defeated, strike its name from the campaign log.
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 2 - 4 Horsemen",
+                        modules: "Hounds, Dystopian Nightmare, Age of Apocalypse & Standard",
+                        setup: `Randomly select a mission side scheme (excluding Protect the Professor and the struck mission) and follow setup instructions for it in the campaign log.
+Randomly select an Overseer minion that has not been struck and add it to the mission area. Put the Mission Rules card next to it.
+The first player takes control of the Mission Team (171A) support card, Mission side faceup.
+Each player searches their deck for an ally and adds it to their hand (this card counts towards hand size).
+Ensure that all cards with the setup keyword are removed from the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 3 threat on the mission side scheme to heal their identity to full HP.`,
+                        victory: `Strike the mission side scheme from the campaign log.
+Follow the instructions in the campaign log for the mission side scheme, depending on whether it was defeated or not.
+If the Overseer minion was defeated, strike its name from the campaign log.
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 3 - Apocalypse",
+                        modules: "Prelates (reverse of Overseer cards), Dark Riders, Infinites, Age of Apocalypse & Standard",
+                        setup: `Randomly select a mission side scheme (excluding Protect the Professor and the struck missions) and follow setup instructions for it in the campaign log.
+Randomly select an Overseer minion that has not been struck and add it to the mission area. Put the Mission Rules card next to it.
+The first player takes control of the Mission Team (171A) support card, Mission side faceup.
+Each player searches their deck for an ally and adds it to their hand (this card counts towards hand size).
+Ensure that all cards with the setup keyword are removed from the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 3 threat on the mission side scheme to heal their identity to full HP.`,
+                        victory: `Strike the mission side scheme from the campaign log.
+Follow the instructions in the campaign log for the mission side scheme, depending on whether it was defeated or not.
+If the Overseer minion was defeated, strike its name from the campaign log.
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 4 - Dark Beast",
+                        modules: "Blue Moon, Genosha, Savage Land, Dystopian Nightmare, Age of Apocalypse & Standard",
+                        setup: `Randomly select a mission side scheme (excluding Protect the Professor and the struck missions) and follow setup instructions for it in the campaign log.
+Randomly select an Overseer minion that has not been struck and add it to the mission area. Put the Mission Rules card next to it.
+The first player takes control of the Mission Team (171A) support card, Mission side faceup.
+Each player searches their deck for an ally and adds it to their hand (this card counts towards hand size).
+Ensure that all cards with the setup keyword are removed from the encounter deck.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 3 threat on the mission side scheme to heal their identity to full HP.`,
+                        victory: `Strike the mission side scheme from the campaign log.
+Follow the instructions in the campaign log for the mission side scheme, depending on whether it was defeated or not.
+If the Overseer minion was defeated, strike its name from the campaign log.
+Expert Campaign: Record each identity's remaining hit points (HP).`
+                    },
+                    {
+                        name: "Scenario 5 - En Sabah Nur",
+                        modules: "Celestial Tech, Clan Akkaba, Age of Apocalypse & Standard",
+                        setup: `Reveal the Protect the Professor mission side scheme and put it into play.
+Randomly select an Overseer minion that has not been struck and add it to the mission area. Put the Mission Rules card next to it.
+The first player takes control of the Mission Team (171A) support card, Mission side faceup.
+Each player searches their deck for an ally and adds it to their hand (this card counts towards hand size).
+Professor X cannot enter play during this game.
+Ensure that all cards with the setup keyword are removed from the encounter deck.
+NOTE: Apocalypse is a three-sided villain. When he changes form, do not reset his hit points or discard attachments.
+Expert Campaign: Set each player's HP to the remaining HP value from the previous scenario. Each player may place 3 threat on the mission side scheme to heal their identity to full HP.`,
+                        victory: `If the Protect the Professor mission side scheme was defeated, the players saved Professor X and win!
+If the Protect the Professor mission side scheme was not defeated, the players failed to saved Professor X and lose the campaign.`
+                    }
+                ],
+                campaignInfo: `
+                    <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                        <h2 class="text-2xl font-bold text-purple-300 border-b border-gray-600 pb-3 mb-4">Mission Side Schemes & Attempts</h2>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-purple-400 mb-2">Mission Rules</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p>Mission side schemes are in a separate mission area.</p>
+                                    <p>Players cannot thwart mission side schemes.</p>
+                                    <p>Cards in the mission area are in play but under no player's control. They cannot be affected by card abilities unless the ability refers to the mission area.</p>
+                                    <p>While a mission side scheme is in play, when a player plays an ally, they must choose: either play that ally into their game area as usual, or play it into the mission area.</p>
+                                    <p>Allies in the mission area are used to make mission attempts. They do not count towards your ally limit.</p>
+                                    <p>Treat the printed text box of each ally in the mission area as blank, except for traits.</p>
+                                    <p>Players may attach upgrades to allies in the mission area.</p>
+                                    <p>When a card in the mission area leaves play, place it in its owner's discard pile.</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700 col-span-1 lg:col-span-2">
+                                <h3 class="text-lg font-semibold text-purple-400 mb-2">Mission Attempts</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p>Mission attempts are triggered by the Mission Team support card. Resolve in order:</p>
+                                    <p><strong>1.</strong> Discard X cards from the top of your deck, where X is the number of allies at the mission.</p>
+                                    <p><strong>2.</strong> Assign each discarded card to a different ally at the mission. If a resource icon on the ally matches a resource icon on the card, the ally participates. Wild icons match any icon. Return discarded cards to the discard pile after.</p>
+                                    <p><strong>3.</strong> Gather X damage tokens into a damage pool, where X is the total ATK of all participating allies.</p>
+                                    <p><strong>4.</strong> Deal damage from this pool to enemies at the mission one at a time until the pool is empty or no enemies remain.</p>
+                                    <p><strong>5.</strong> Remove X threat from the MISSION side scheme, where X is the total THW of all participating allies.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+            },
+                        
+            "Agents of S.H.I.E.L.D.": {
+                scenarios: [
+                    {
+                        name: "Scenario 1 - Black Widow",
+                        modules: "Black Widow, A.I.M. Abduction, A.I.M. Science, and Standard",
+                        setup: `Each player records their identity in the campaign log. Players cannot switch identities during a campaign.
+Prepare the evidence (see campaign info below).
+Prepare the S.H.I.E.L.D. Executive Board set: Put the three BOARD MEMBER environments into play. Place two secret counters on each BOARD MEMBER environment. Shuffle the three copies of the A.I.M. Interference treachery into the encounter deck.`,
+                        victory: `Record the total number of minions and side schemes in play in the campaign log.
+Record the number of secret counters on each BOARD MEMBER card in the campaign log.
+If at least one BOARD MEMBER environment in play has no secret counters on it, gain one evidence card from the S.H.I.E.L.D. envelope.
+Expert Campaign: Record each identity's remaining hit points in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 2 - Batroc",
+                        modules: "Batroc, A.I.M. Science, Batroc's Brigade, and Standard",
+                        setup: `Place threat on the Alert Level environment equal to the number of minions and side schemes recorded in the campaign log for scenario #1.
+Prepare the S.H.I.E.L.D. Executive Board set: Put the three BOARD MEMBER environments into play. Place secret counters on each BOARD MEMBER environment equal to the number of secret counters recorded for that environment in scenario #1. Shuffle the three copies of the A.I.M. Interference treachery into the encounter deck.
+After resolving mulligans, resolve the "Setup" ability of each evidence card the players have earned.
+Expert Campaign: Set each player's hit points to their remaining hit point value recorded in the campaign log for the previous scenario.
+Expert Campaign: Each player may place one secret counter on a BOARD MEMBER environment to heal damage from their identity equal to their REC.`,
+                        victory: `Record the number of Rescued Captive allies in play in the campaign log.
+Record the number of secret counters on each BOARD MEMBER card in the campaign log.
+If at least one BOARD MEMBER environment in play has no secret counters on it, gain one evidence card from the S.H.I.E.L.D. envelope.
+Expert Campaign: Record each identity's remaining hit points in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 3 - M.O.D.O.K.",
+                        modules: "M.O.D.O.K., Scientist Supreme, and Standard",
+                        setup: `Place 3-per-player additional lock counters on the top card of the Holding Cell deck, then remove X-per-player lock counters from that card, where X is the number of "Rescued Captives in Play" recorded in the campaign log.
+Prepare the S.H.I.E.L.D. Executive Board set: Put the three BOARD MEMBER environments into play. Place secret counters on each BOARD MEMBER environment equal to the number of secret counters recorded for that environment in scenario #2. Shuffle the three copies of the A.I.M. Interference treachery into the encounter deck.
+After resolving mulligans, resolve the "Setup" ability of each evidence card the players have earned.
+Holding Cell Deck: Created by shuffling the four double-sided Holding Cell cards (each with an INHUMAN ally on the back). Place this deck nearby, the top card is in play. 
+Expert Campaign: Set each player's hit points to their remaining hit point value recorded in the campaign log for the previous scenario.
+Expert Campaign: Each player may place one secret counter on a BOARD MEMBER environment to heal damage from their identity equal to their REC.`,
+                        victory: `Mark each ADAPTOID environment in play in the campaign log.
+Record the number of secret counters on each BOARD MEMBER card in the campaign log.
+If at least one BOARD MEMBER environment in play has no secret counters on it, gain one evidence card from the S.H.I.E.L.D. envelope.
+Expert Campaign: Record each identity's remaining hit points in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 4 - Thunderbolts",
+                        modules: "Thunderbolts and Standard. Requires 1 plus 1-per-player (e.g. 2 in solo) additional modular sets each containing an ELITE, THUNDERBOLT minion.",
+                        setup: `Prepare the S.H.I.E.L.D. Executive Board set: Put the three BOARD MEMBER environments into play. Place secret counters on each BOARD MEMBER environment equal to the number of secret counters recorded for that environment in scenario #3. Shuffle the three copies of the A.I.M. Interference treachery into the encounter deck.
+After resolving mulligans, resolve the "Setup" ability of each evidence card the players have earned.
+Thunderbolt Backup: The minion attached to the Thunderbolt Backup environment is considered to be in play, retains all tokens, status cards and attachments and can be targeted by attacks and card abilities. It does not attack because it is not engaged.
+Expert Campaign: Set each player's hit points to their remaining hit point value recorded in the campaign log for the previous scenario.
+Expert Campaign: Each player may place one secret counter on a BOARD MEMBER environment to heal damage from their identity equal to their REC.`,
+                        victory: `If there are any THUNDERBOLT minions in play, record each of their names in the campaign log.
+Record the number of secret counters on each BOARD MEMBER card in the campaign log.
+If at least one BOARD MEMBER environment in play has no secret counters on it, gain one evidence card from the S.H.I.E.L.D. envelope.
+Expert Campaign: Record each identity's remaining hit points in the campaign log.`
+                    },
+                    {
+                        name: "Scenario 5 - Baron Zemo",
+                        modules: "Baron Zemo, S.H.I.E.L.D. Executive Board, Executive Board Evidence, Scientist Supreme, S.H.I.E.L.D., and Standard",
+                        setup: `Put into play each ADAPTOID environment marked as "in play" in the campaign log.
+Shuffle each copy of the Adaptoid minion into the encounter deck.
+If you recorded any "Surviving Thunderbolts" in the campaign log, shuffle those minions and their encounter sets (except for Jolt's) into the encounter deck.
+Set the A.I.M. and S.H.I.E.L.D. envelopes aside.
+Place secret counters on each BOARD MEMBER environment equal to the number of secret counters recorded for that environment in scenario #4.
+After resolving mulligans, resolve the "Setup" ability of each evidence card the players have earned.
+Expert Campaign: Set each player's hit points to their remaining hit point value recorded in the campaign log for the previous scenario.
+Expert Campaign: Each player may place one secret counter on a BOARD MEMBER environment to heal damage from their identity equal to their REC.`,
+                        victory: `Zemo is defeated, the mole is exposed, the heroes are exonerated, and the players win the campaign!`
+                    }
+                ],
+                campaignInfo: `
+                    <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+                        <h2 class="text-2xl font-bold text-sky-300 border-b border-gray-600 pb-3 mb-4">S.H.I.E.L.D. Executive Board & Evidence</h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-sky-400 mb-2">Preparing the Evidence</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p>At the start of the campaign, nine evidence cards (three each of Motive, Means, and Opportunity) are handled as follows:</p>
+                                    <p><strong>1.</strong> Shuffle each set of three cards separately.</p>
+                                    <p><strong>2.</strong> Place one card from each set into the A.I.M. envelope without looking. This determines the mole's identity.</p>
+                                    <p><strong>3.</strong> Place the remaining six evidence cards into the S.H.I.E.L.D. envelope without looking.</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                                <h3 class="text-lg font-semibold text-sky-400 mb-2">Gathering Evidence</h3>
+                                <div class="text-gray-300 text-sm space-y-3">
+                                    <p>The goal is to discover the mole by eliminating possibilities. You do this by gaining evidence cards from the S.H.I.E.L.D. envelope.</p>
+                                    <p>Each board member starts with secret counters. You can remove these counters during the scenario. If a board member has zero secret counters at the end of a scenario, you gain one evidence card from the S.H.I.E.L.D. envelope.</p>
+                                    <p><strong>Betrayal:</strong> If a board member ever has four secrets (three in expert), they flip to their attachment side and empower the villain for the rest of the campaign.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 bg-gray-800 p-4 rounded-md border border-gray-700">
+                            <h3 class="text-lg font-semibold text-sky-400 mb-2">Evidence Combinations Chart</h3>
+                            <p class="text-gray-400 text-sm mb-4">Use this chart to cross-reference the evidence you've gathered and eliminate potential moles.</p>
+                            <img src="AOScampaignLog.jpg" alt="Evidence Combinations Chart" class="w-full max-w-2xl mx-auto rounded-lg border border-gray-600">
+                        </div>
+                    </div>`
+            }
+        };
+
+        const campaignSelect = document.getElementById('campaign-select');
+        const scenarioSelect = document.getElementById('scenario-select');
+        const scenarioInfo = document.getElementById('scenario-info');
+        const placeholder = document.getElementById('placeholder');
+        const campaignSpecificInfoContainer = document.getElementById('campaign-specific-info');
+        const campaignLogContainer = document.getElementById('campaign-log-container');
+        const campaignLog = document.getElementById('campaign-log');
+        const saveLogBtn = document.getElementById('save-log');
+        const clearLogBtn = document.getElementById('clear-log');
+        const saveConfirm = document.getElementById('save-confirm');
+        
+        const scenarioTitle = document.getElementById('scenario-title');
+        const modulesInfo = document.getElementById('modules-info');
+        const setupInfo = document.getElementById('setup-info');
+        const victoryInfo = document.getElementById('victory-info');
+
+        // Function to format text with paragraph spacing and expert highlighting
+        function formatText(text) {
+            if (!text) return '';
+            return text.split('\n')
+                .filter(line => line.trim() !== '') // Remove empty lines from data
+                .map(line => {
+                    const trimmedLine = line.trim();
+                    // Check for "Expert Campaign" prefix, case-insensitive
+                    if (trimmedLine.match(/^(>>\s*)?Expert Campaign/i)) {
+                        // Remove the prefix for cleaner display inside the box
+                        const content = trimmedLine.replace(/^(>>\s*)?Expert Campaign:?\s*/i, '');
+                        return `<div class="bg-cyan-900/50 p-3 rounded-md border border-cyan-800 mb-3 text-sm">
+                                    <strong class="font-semibold text-cyan-300 block mb-1">Expert Campaign</strong>
+                                    <p class="text-gray-300 leading-relaxed">${content}</p>
+                                </div>`;
+                    } else {
+                        return `<p class="mb-3 leading-relaxed">${trimmedLine.replace(/^>>\s*/, '')}</p>`;
+                    }
+                })
+                .join('');
+        }
+
+        // Function to load log from localStorage
+        function loadLog(campaignName) {
+            const savedLog = localStorage.getItem(`campaignLog_${campaignName}`);
+            campaignLog.value = savedLog || '';
+        }
+
+        // Function to save log to localStorage
+        function saveLog(campaignName) {
+            localStorage.setItem(`campaignLog_${campaignName}`, campaignLog.value);
+            saveConfirm.classList.remove('opacity-0');
+            setTimeout(() => {
+                saveConfirm.classList.add('opacity-0');
+            }, 2000);
+        }
+
+        // Function to clear log from localStorage
+        function clearLog(campaignName) {
+            localStorage.removeItem(`campaignLog_${campaignName}`);
+            campaignLog.value = '';
+        }
+
+        // Populate campaign dropdown on load and select the first campaign/scenario
+        document.addEventListener('DOMContentLoaded', () => {
+            const campaigns = Object.keys(campaignData);
+            if (campaigns.length > 0) {
+                campaigns.forEach(campaign => {
+                    const option = document.createElement('option');
+                    option.value = campaign;
+                    option.textContent = campaign;
+                    campaignSelect.appendChild(option);
+                });
+                // Select the first campaign and trigger the change event to load its scenarios
+                campaignSelect.value = campaigns[0];
+                campaignSelect.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Event listener for campaign selection
+        campaignSelect.addEventListener('change', (e) => {
+            const selectedCampaign = e.target.value;
+            const campaign = campaignData[selectedCampaign];
+            const scenarios = campaign.scenarios;
+
+            // Reset and populate scenario dropdown
+            scenarioSelect.innerHTML = ''; // Clear previous scenarios
+            scenarios.forEach((scenario, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = scenario.name;
+                scenarioSelect.appendChild(option);
+            });
+            scenarioSelect.disabled = false;
+
+            // Handle campaign-specific info
+            if (campaign.campaignInfo) {
+                campaignSpecificInfoContainer.innerHTML = campaign.campaignInfo;
+                campaignSpecificInfoContainer.classList.remove('hidden');
+            } else {
+                campaignSpecificInfoContainer.innerHTML = '';
+                campaignSpecificInfoContainer.classList.add('hidden');
+            }
+            
+            // Show log and load data
+            campaignLogContainer.classList.remove('hidden');
+            loadLog(selectedCampaign);
+
+            // Default to the first scenario and trigger the change event to display it
+            if (scenarios.length > 0) {
+                scenarioSelect.value = 0;
+                scenarioSelect.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Event listener for scenario selection
+        scenarioSelect.addEventListener('change', (e) => {
+            const selectedCampaign = campaignSelect.value;
+            const selectedScenarioIndex = e.target.value;
+            const scenario = campaignData[selectedCampaign].scenarios[selectedScenarioIndex];
+
+            // Populate the info display
+            scenarioTitle.textContent = scenario.name;
+            modulesInfo.textContent = scenario.modules;
+            setupInfo.innerHTML = formatText(scenario.setup);
+            victoryInfo.innerHTML = formatText(scenario.victory);
+
+            // Show the info display
+            placeholder.classList.add('hidden');
+            scenarioInfo.classList.remove('hidden');
+            setTimeout(() => scenarioInfo.classList.remove('opacity-0'), 10); // for fade-in effect
+        });
+
+        // Event listeners for log buttons
+        saveLogBtn.addEventListener('click', () => {
+            const selectedCampaign = campaignSelect.value;
+            if (selectedCampaign) {
+                saveLog(selectedCampaign);
+            }
+        });
+
+        clearLogBtn.addEventListener('click', () => {
+             const selectedCampaign = campaignSelect.value;
+            if (selectedCampaign) {
+                if (confirm('Are you sure you want to clear the log for this campaign? This cannot be undone.')) {
+                    clearLog(selectedCampaign);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
