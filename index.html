@@ -1,0 +1,354 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Champions SCL Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple scrollbar styling for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a202c; /* bg-gray-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* bg-gray-700 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* bg-gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-red-500 tracking-tight">Marvel Champions</h1>
+            <h2 class="text-xl sm:text-2xl font-semibold text-gray-300">Solo Champions League Archive</h2>
+            <p class="text-xs text-gray-500 mt-2">This is a fan-made site. All original content and data courtesy of <a href="https://www.bearoverinnsmouth.com/solo-champions-league" target="_blank" rel="noopener noreferrer" class="text-red-400 hover:text-red-500 underline">Innsmouth Bear</a>.</p>
+        </header>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <div class="flex-1">
+                <label for="season-select" class="block mb-2 text-sm font-medium text-gray-400">Season</label>
+                <select id="season-select" class="bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 transition duration-150 ease-in-out">
+                    </select>
+            </div>
+            <div class="flex-1">
+                <label for="round-select" class="block mb-2 text-sm font-medium text-gray-400">Round</label>
+                <select id="round-select" class="bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 transition duration-150 ease-in-out">
+                    </select>
+            </div>
+        </div>
+
+        <div id="scenario-details" class="bg-gray-800 border border-gray-700 rounded-lg p-6 min-h-[250px] shadow-lg transition-opacity duration-300 ease-in-out">
+            </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const scenarioData = {
+                1: {
+                    rules: "Season 1 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Rhino + Masters of Evil [Standard]", hero: "Black Panther, Captain Marvel, or Thor", aspect: "Justice" },
+                        { name: "Round 2", scenario: "Ultron + Under Attack [Standard]", hero: "She-Hulk", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 3", scenario: "Klaw + The Doomsday Chair [Standard]", hero: "Iron Man, Spider-Man, or Black Widow", aspect: "Leadership" },
+                        { name: "Round 4", scenario: "Ultron + Bomb Scare [Expert]", hero: "Black Panther", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 5", scenario: "Rhino + Legion of Hydra [Expert]", hero: "She-Hulk, Spider-Man, or Hulk", aspect: "Protection" }
+                    ]
+                },
+                2: {
+                    rules: "Season 2 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Klaw + Bomb Scare [Standard]", hero: "Iron Man", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 2", scenario: "Rhino + The Doomsday Chair [Standard]", hero: "Black Panther, She-Hulk, or Ms. Marvel", aspect: "Aggression" },
+                        { name: "Round 3", scenario: "Ultron + Legions of Hydra [Standard]", hero: "Captain Marvel", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 4", scenario: "Klaw + Under Attack [Expert]", hero: "Black Panther, Iron Man, or Captain America", aspect: "Protection" },
+                        { name: "Round 5", scenario: "Ultron + The Doomsday Chair [Expert]", hero: "Spider-Man", aspect: "Aggression, Justice, Leadership, or Protection" }
+                    ]
+                },
+                3: {
+                    rules: "Season 3 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Ultron + Masters of Evil [Standard]", hero: "Captain Marvel, Captain America, or Doctor Strange", aspect: "Leadership" },
+                        { name: "Round 2", scenario: "Crossbones + Experimental Weapons [Standard]", note: "The Event deck should consist of Crossbones cards and Standard cards. The Experimental Weapons deck is separate as per 1A of the Main Scheme.", hero: "Hawkeye", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 3", scenario: "Rhino + Under Attack [Standard]", hero: "Black Panther, Ms. Marvel, or Spider-Man", aspect: "Aggression" },
+                        { name: "Round 4", scenario: "Taskmaster + Hydra Assault [Expert]", hero: "Spider-Woman", aspect: "Protection + Aggression, Justice, or Leadership" },
+                        { name: "Round 5", scenario: "Klaw + Legions of Hydra [Expert]", hero: "Iron Man, Hulk, or Thor", aspect: "Justice" }
+                    ]
+                },
+                4: {
+                    rules: "Season 4 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Crossbones [Experimental Weapons, Weapon Master, & Legions of Hydra] + Bomb Scare [Standard]", hero: "Hulk", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 2", scenario: "Wrecking Crew [Standard]", hero: "Spider-Man, Spider-Woman, or Ant-Man", aspect: "Justice", note: "As per the top of pg. 7 of the Wrecking Crew rules \"When a villain is defeated, their signature side scheme is removed from the game\". At end of game ONLY count threat left on the Main Scheme and the signature side scheme of any villains still in play." },
+                        { name: "Round 3", scenario: "Red Skull [Hydra Patrol] + Under Attack [Standard]", hero: "Captain America", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 4", scenario: "Mutagen Formula + Running Interference [Expert]", hero: "She-Hulk, Hawkeye, or Wasp", aspect: "Leadership" },
+                        { name: "Round 5", scenario: "Absorbing Man + Bomb Scare [Expert]", hero: "Iron Man", aspect: "Aggression, Justice, Leadership, or Protection" }
+                    ]
+                },
+                5: {
+                    rules: "Season 5 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Risky Business + Weapon Master [Standard]", hero: "Ant-Man, Captain America, She-Hulk, or Spider-Woman", aspect: "Aggression" },
+                        { name: "Round 2", scenario: "Klaw + Hydra Assault [Standard]", hero: "Black Widow", aspect: "Aggression, Justice, Leadership, or Protection" },
+                        { name: "Round 3", scenario: "Kang + Master of Time [Standard]", hero: "Black Panther, Ms. Marvel, Thor or Wasp", aspect: "Protection", specialRules: "Remove The Present Future War + Kang (Scarlet Centurion) from the game. These will not be used. The first time you reach stage 2A of the Main Scheme, shuffle The Realm of Rama-Tut, Inexorable Fate, and The Chronopolis together. Reveal one at random. For future attempts, remove the already completed Stage 3 Scheme from the random draw pile. By the end of your 3 attempts, you should have played each Stage 3 once." },
+                        { name: "Round 4", scenario: "Wrecking Crew [Expert]", hero: "Doctor Strange", aspect: "Aggression, Justice, Leadership, or Protection", note: "As per the top of pg. 7 of the Wrecking Crew rules \"When a villain is defeated, their signature side scheme is removed from the game\". At end of game ONLY count threat left on the Main Scheme and the signature side scheme of any villains still in play." },
+                        { name: "Round 5", scenario: "Red Skull + Hydra Assault + The Doomsday Chair [Expert]", hero: "Captain Marvel, Hawkeye, Hulk, or Quicksilver", aspect: "Leadership" }
+                    ]
+                },
+                6: {
+                    rules: "Season 6 will operate with standard Solo Play Rules with the addition of Round specific Deck-Building constraints. These constraints do not affect Hero's signature cards.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Absorbing Man + Hydra Assault [Standard]", hero: "Thor", aspect: "Aggression, Justice, Leadership, Protection, or Basic", deckBuilding: "No more than 1 copy of any given card in your deck." },
+                        { name: "Round 2", scenario: "Crossbones [Experimental Weapons & Legions of Hydra] + Anachronauts [Standard]", hero: "Black Widow, Captain Marvel, Hawkeye, or Wasp", aspect: "Protection", deckBuilding: "No more than 2 Upgrades in deck by name." },
+                        { name: "Round 3", scenario: "Mutagen Formula + Experimental Weapons [Standard]", hero: "Ms. Marvel", aspect: "Aggression, Justice, Leadership, Protection, or Basic", deckBuilding: "Must have 3 copies of every (non-Ally) card in your deck. No Unique (non-Ally) cards allowed. Exactly 3 Allies in your deck." },
+                        { name: "Round 4", scenario: "Rhino + Weapon Master [Expert]", hero: "Iron Man, Quicksilver, Spider-Woman, or Scarlet Witch", aspect: "Justice", deckBuilding: "No cards with cost 4+" },
+                        { name: "Round 5", scenario: "Zola + Master of Time [Expert]", hero: "Ant-Man", aspect: "Aggression, Justice, Leadership, Protection, or Basic", deckBuilding: "No \"Wild\" Resource Cards" }
+                    ]
+                },
+                7: {
+                    rules: "Season 7 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Taskmaster + Hydra Patrol + A Mess of Things [Standard]", hero: "Black Widow, Hulk, Ms. Marvel, or She-Hulk", aspect: "Leadership" },
+                        { name: "Round 2", scenario: "Brotherhood of Badoon + Ship Command + Space Pirates [Standard]", hero: "Rocket Raccoon", aspect: "Aggression, Justice, Leadership, Protection, or Basic", units: "2" },
+                        { name: "Round 3", scenario: "Risky Business + Hydra Patrol [Standard]", hero: "Captain America, Doctor Strange, Iron Man, or Quicksilver", aspect: "Basic" },
+                        { name: "Round 4", scenario: "Escape the Museum + Galactic Artifacts + Ship Command + Power Stone [Expert]", hero: "Groot", aspect: "Aggression, Justice, Leadership, Protection, or Basic", units: "5" },
+                        { name: "Round 5", scenario: "Kang + Anachronauts [Expert]", hero: "Captain Marvel, Hawkeye, Scarlet Witch, or Spider-Woman", aspect: "Aggression", specialRules: "Remove The Realm of Rama-Tut + Kang (Rama-Tut) from the game. These will not be used. The first time you reach stage 2A of the Main Scheme, shuffle The Chronopolis, Inexorable Fate, and The Present and Future War together. Reveal one at random. For future attempts, remove the already completed Stage 3 Scheme from the random draw pile. By the end of your 3 attempts, you should have played each Stage 3 once." }
+                    ]
+                },
+                8: {
+                    rules: "Season 8 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Klaw + Temporal [Standard]", hero: "Doctor Strange", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 2", scenario: "Taskmaster + Hydra Patrol + Menagerie Medley [Standard]", hero: "Captain America, Captain Marvel, Hawkeye, or Hulk", aspect: "Aggression", units: "2" },
+                        { name: "Round 3", scenario: "Mutagen Formula + Kree Militants [Standard]", hero: "Spider-Woman", aspect: "Leadership + Aggression, Justice, or Protection [or 100% Basic Deck]", units: "4" },
+                        { name: "Round 4", scenario: "Nebula + Power Stone + Ship Command + A Mess of Things [Expert]", hero: "Black Widow, Iron Man, Ms. Marvel, or Scarlet Witch", aspect: "Justice", units: "4" },
+                        { name: "Round 5", scenario: "Zola + Masters of Evil [Expert]", hero: "Rocket Raccoon", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" }
+                    ]
+                },
+                9: {
+                    rules: "Season 9 will operate with standard Solo Play Rules. Set your own Difficulty! You can choose Standard or Expert difficulty for any Round. If playing Standard, choose between Standard or Standard II sets and defeat Stages 1-2 of the Villain. If choosing Expert, choose between Standard or Standard II and between Expert or Expert II and defeat stages 2-3 of the Villain. Bonus XP will be awarded based on difficulty.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Brotherhood of Badoon + Goblin Gimmicks + Ship Command", hero: "Iron Man, Groot, Wasp, or Venom", aspect: "Aggression" },
+                        { name: "Round 2", scenario: "Absorbing Man + Band of Badoon", hero: "Quicksilver", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", upgrade: "1 Tech Upgrade [The Rise of Red Skull campaign - normal campaign rules apply]" },
+                        { name: "Round 3", scenario: "Infiltrate the Museum + Running Interference + Galactic Artifacts", hero: "Ant-Man, Scarlet Witch, She-Hulk or Star-Lord", aspect: "Protection", units: "4 [GMW Marketplace]" },
+                        { name: "Round 4", scenario: "Ultron + Power Drain", hero: "Thor", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 5", scenario: "Kang + Badoon Headhunter", hero: "Black Panther, Black Widow, Spider-Man, or Drax", aspect: "Basic", specialRules: "Remove Inexorable Fate + Kang (Iron Lad) from the game. These will not be used. The first time you reach stage 2A of the Main Scheme, shuffle The Chronopolis, The Realm of Rama-Tut, and The Present and Future War together. Reveal one at random. For future attempts, remove the already completed Stage 3 Scheme from the random draw pile. By the end of your 3 attempts, you should have played each Stage 3 once." }
+                    ]
+                },
+                10: {
+                    rules: "Season 10 will operate with standard Solo Play Rules. Each Round will introduce available difficulties to choose from. Please stay within these options. Bonus XP will be awarded for taking on higher difficulties.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Risky Business + A Mess of things", difficulty: "Standard or Standard II", hero: "Wasp", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 2", scenario: "Klaw + Hydra Patrol", difficulty: "Standard or Standard II", hero: "Black Panther, Captain America, Hawkeye, Quicksilver, or Star-Lord", aspect: "Justice" },
+                        { name: "Round 3", scenario: "Zola + Legions of Hydra", difficulty: "Standard or Standard II", hero: "Scarlet Witch", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", campaignUpgrades: "TRoRS Campaign Upgrades: 1 x Tech Upgrade, 1x Condition Upgrade [Basic], & 1x Rescued Hero [Random]. Before each attempt reveal a Rescued Hero (Taskmaster) and shuffle it into your deck. Remove that hero at the end of the game and randomly draw from the remaining heroes for your next attempt. By the end of your 3 Attempts, you should have used 3/4 of the Rescued Heroes with no repeats." },
+                        { name: "Round 4", scenario: "Red Skull + Hydra Assault + Masters of Evil", difficulty: "[Standard or Standard II] + [Expert or Expert II]", hero: "Iron Man, Ms. Marvel, Rocket Raccoon, Venom, or Gamora", aspect: "Leadership", campaignUpgrades: "TRoRS Campaign Upgrades: 1 x Tech Upgrade, 1x Condition Upgrade [Basic], & 2x Rescued Hero [Random]. Before your first attempt, reveal two Rescued Heroes (Taskmaster) and shuffle them into your deck. Remove those heroes at the end of the game and shuffle the two remaining Rescued Heroes into your deck for your next attempt. For the final match, shuffle 1 random Rescued Hero from your first attempt and one random Rescued Hero from your second attempt into you deck. By the end of your three matches you should have seen all Rescued Heroes at least once and should have a different combination each attempt." },
+                        { name: "Round 5", scenario: "Ronan the Accuser + Power Drain + Power Stone [Starts with Ronan] + Ship Command", difficulty: "Standard or Standard II + Expert or Expert II", hero: "Doctor Strange", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", units: "4" }
+                    ]
+                },
+                11: {
+                    rules: "Season 11 will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Wrecking Crew", difficulty: "Standard", hero: "Captain America, Captain Marvel, Quicksilver, Venom, or Valkyrie", aspect: "Aggression", note: "As per the top of pg. 7 of the Wrecking Crew rules \"When a villain is defeated, their signature side scheme is removed from the game\". At end of game ONLY count threat left on the Main Scheme and the signature side scheme of any villains still in play." },
+                        { name: "Round 2", scenario: "Tower Defense + Black Order", difficulty: "Standard or Standard II", hero: "Spectrum", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", campaignElements: "1 Damage to Avengers Tower during Setup. \"Save the Shwarma Place\" Side Scheme in play. \"Security Breach\" shuffled into Encounter deck." },
+                        { name: "Round 3", scenario: "Rhino + Anachronauts", difficulty: "Standard or Standard II", hero: "Hulk, Ms. Marvel, She-Hulk, Star-Lord, or War Machine", aspect: "Justice" },
+                        { name: "Round 4", scenario: "Loki + Infinity Gauntlet + Legions of Hel + ???", difficulty: "[Standard or Standard II] + [Expert or Expert II]", hero: "Adam Warlock", aspect: "Aggression + Justice + Leadership + Protection or All Basic", campaignElements: "1x Shwarma. 1x Norn Stone in play. Odin [King] in play. \"Open the Dungeons\" Side Scheme in play. Must Defeat 3 Loki's.", note: "Alternate Modular Sets: Armies of Titan, Black Order, Children of Thanos, Enchantress, or Frost Giants. For this Round, players can choose the third modular set for the Round from the available options since Adam Warlock only has two options in terms of Aspects (all or none.)" },
+                        { name: "Round 5", scenario: "Nebula + Master of Time + Power Stone + Ship Command", difficulty: "[Standard or Standard II] + [Expert or Expert II]", hero: "Spider-Woman or Vision", aspect: "Aggression, Protection, or All Basic", campaignElements: "3 Units for GMW Marketplace. Reveal \"Guerrilla Tactics [Expert]\" Side Scheme." }
+                    ]
+                },
+                12: {
+                    rules: "Season 12: People's Choice will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Taskmaster + Power Stone + Hydra Patrol", difficulty: "Standard", hero: "She-Hulk", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", campaignElements: "1 x Tech Upgrade. 1x Condition Upgrade [Basic]." },
+                        { name: "Round 2", scenario: "Ebony Maw + Galactic Artifacts + Armies of Titan", difficulty: "Standard", hero: "War Machine, Spider-Woman, Thor, Rocket Raccoon, or Spectrum", aspect: "All Basic", campaignElements: "\"Secure the Landing Pad\" Side Scheme in play." },
+                        { name: "Round 3", scenario: "The Hood + ???", difficulty: "Standard", hero: "Spider-Man [Peter Parker]", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", note: "Modular Sets: 1 - Wrecking Crew, 2 - Mister Hyde, 3 - Beasty Boys, 4 - State of Emergency, 5 - Streets of Mayhem, 6 - Ransacked Armory, 7 - Sinister Syndicate. For your first official attempt, start with Modular set #1 (Wrecking Crew) in the Encounter Deck. When asked to add a modular set to your Encounter Deck, add the next Modular set on the list, in order. For your second attempt, start with Modular Set #2 (Mister Hyde) and for your third, start with Modular Set #3 (Beasty Boys). In each attempt, move down the list, circling back to #1 if needed." },
+                        { name: "Round 4", scenario: "Hela + Master of Time + Frost Giants", difficulty: "Expert", hero: "Drax, Vision, Ms. Marvel, Adam Warlock, or Ant-Man", aspect: "Protection", campaignElements: "1x Shawarma in Deck." },
+                        { name: "Round 5", scenario: "Thanos + The Doomsday Chair + Infinity Gauntlet + Children of Thanos", difficulty: "Expert", hero: "Nebula", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", campaignElements: "Cosmo Ally in play. 1x Shawarma in deck (added after drawing opening hand)." }
+                    ]
+                },
+                13: {
+                    rules: "Season 13: Team Building will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Klaw + Ransacked Armory", difficulty: "Standard", hero: "Iron Man, Ironheart, Captain Marvel, Ms. Marvel, or Nova", aspect: "Justice" },
+                        { name: "Round 2", scenario: "The Sinister Six + Down to Earth", difficulty: "Standard", hero: "Ghost-Spider", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", campaignElements: "Reputation: 11. 1x S.H.I.E.L.D. Tech Upgrade [Propulsion Gauntlet, Shock Knuckles, or Wave Bracers]. 1x Additional Mulligan. Choose any Aspect card and add maximum number of copies to deck. Add Ionic Boots to Encounter Deck. Place +1 Threat on Main Scheme. Search Encounter Deck for a Minion, put into play engaged with you.", note: "Starting Villains: Attempt 1 - Hobgoblin + Vulture, Attempt 2 - Kraven the Hunter + Electro, Attempt 3 - Scorpion + Doctor Octopus." },
+                        { name: "Round 3", scenario: "Ronan the Accuser + Under Attack + Power Stone [Starts with Hero] + Ship Command", difficulty: "Standard", hero: "Drax, Gamora, Groot, Nebula, or Star-Lord", aspect: "Aggression", campaignElements: "4 Units [GMW Marketplace]." },
+                        { name: "Round 4", scenario: "Sandman + Sinister Assault + City in Chaos", difficulty: "Expert", hero: "Spider-Man [Miles Morales]", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 5", scenario: "Tower Defense + Streets of Mayhem", difficulty: "Expert", hero: "Ant-Man, Black Widow, Spectrum, Vision, or Wasp", aspect: "Leadership", campaignElements: "3 Damage to Avengers Tower." }
+                    ]
+                },
+                14: {
+                    rules: "Season 14: No. More. Avengers. will operate with standard Solo Play Rules. Starting with Round 2, each player will choose a Faction: Champions, Guardians, Web-Warriors, or X-Men. For the remainder of Season 14, you will stick to your chosen faction unless told otherwise. Hero Signature cards count towards Deck-Building Constraints.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Loki + Whispers of Paranoia + Band of Badoon + Infinity Gauntlet", difficulty: "Standard", hero: "Scarlet Witch", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 2", scenario: "Risky Business + Wrecking Crew", difficulty: "Standard II", hero: "Champions: Ironheart, Nova, or Ms. Marvel. Guardians: Gamora, Nebula, or Star-Lord. Web-Warriors: Ghost-Spider, SP//dr, or Spider-Ham. X-Men: Colossus, Cyclops, or Storm.", aspect: "Leadership", deckBuilding: "No cards with \"Avenger\" trait. At least 3 cards with or requiring your faction trait." },
+                        { name: "Round 3", scenario: "Absorbing Man + Power Drain", difficulty: "Standard", hero: "Champions: Spider-Man [Miles Morales]. Guardians: Gamora. Web-Warriors: Spider-Man [Miles Morales]. X-Men: Shadowcat.", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", deckBuilding: "No cards with \"Avenger\" trait. At least 2 cards with or requiring your faction trait. At least 1 card with one of the other factions traits." },
+                        { name: "Round 4", scenario: "Wrecking Crew", difficulty: "Expert", hero: "Champions: Ms. Marvel or Nova. Guardians: Adam Warlock, Drax, Groot, or Rocket Raccoon. Web-Warriors: SP//dr or Ghost-Spider. X-Men: Gambit, Phoenix, or Wolverine.", aspect: "Aggression", deckBuilding: "No cards with \"Avenger\" trait. At least 1 card with or requiring your faction trait. At least 2 cards with one of the other factions traits.", note: "As per the top of pg. 7 of the Wrecking Crew rules \"When a villain is defeated, their signature side scheme is removed from the game\". At end of game ONLY count threat left on the Main Scheme and the signature side scheme of any villains still in play." },
+                        { name: "Round 5 (Option 1)", scenario: "Mysterio + Symbiotic Strength + Personal Nightmare", difficulty: "Expert", hero: "Champions: Ironheart. Guardians: Venom. Web-Warriors: Spider-Ham. X-Men: Rogue.", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", deckBuilding: "No cards with \"Avenger\" trait. No cards with or requiring your faction trait. At least 3 cards with one of the other factions traits." },
+                        { name: "Round 5 (Option 2)", scenario: "Mysterio + Symbiotic Strength + Personal Nightmare", difficulty: "Standard II + Expert II", hero: "Captain America, Iron Man, Hulk, or Thor", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", deckBuilding: "N/A" }
+                    ]
+                },
+                15: {
+                    rules: "Season 15: Mutation will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Taskmaster + Sinister Assault + Hydra Patrol", difficulty: "Standard", hero: "Gambit, Ms. Marvel, Rocket Raccoon, Vision, or War Machine", aspect: "Protection" },
+                        { name: "Round 2", scenario: "Master Mold + Mystique + Sentinels", difficulty: "Standard", hero: "Colossus", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 3", scenario: "Mojo + Horror + Western + Sitcom", difficulty: "Standard", hero: "Black Panther, Hawkeye, Nebula, Quicksilver, or Wolverine", aspect: "All Basic", note: "Set-up: [In Encounter Deck, Set Aside, Removed From Game] Attempt #1 - [Horror, Western, Sitcom], Attempt #2 - [Western, Sitcom, Horror], Attempt #3 - [Sitcom, Horror, Western]." },
+                        { name: "Round 4", scenario: "Sabretooth + Acolytes + Brotherhood", difficulty: "Expert", hero: "Shadowcat", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 5", scenario: "Escape the Museum + Goblin Gear + Galactic Artifacts + Ship Command", difficulty: "Expert", hero: "Drax, Ghost-Spider, Nova, SP//dr, or Star-Lord", aspect: "Leadership", campaignElements: "5 Units for the Marketplace." }
+                    ]
+                },
+                16: {
+                    rules: "Season 16: Hydra. In. SPAAACCE!!! will operate with standard Solo Play Rules. Rounds 2-5 will incorporate campaign elements from The Rise of Red Skull and Galaxy's Most Wanted with bonus rewards based on position in the Season leaderboard and/or additional modular sets.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Ebony Maw + Bomb Scare + Black Order + Ship Command", difficulty: "Standard", hero: "Black Widow", aspect: "Aggression, Justice, Leadership, Protection, or All Basic" },
+                        { name: "Round 2", scenario: "Taskmaster + Sci-Fi + Hydra Patrol + Ship Command", difficulty: "Standard", hero: "Nova, Phoenix, Rocket Raccoon, Thor, or Venom", aspect: "Justice", campaignElements: "GMW Marketplace Units - Refer to \"Available Units\" on Season Leaderboard. If this is your first Round of the Season, then 4 Units. TRoRS - 1x Tech Upgrade if you add Experimental Weapons modular set to the set-up." },
+                        { name: "Round 3", scenario: "Magog + Legions of Hydra + Longshot + Ship Command", difficulty: "Standard", hero: "Spider-Woman", aspect: "Aggression + Justice, Aggression + Leadership, Aggression + Protection, Justice + Leadership, Justice + Protection, Leadership + Protection, or All Basic", campaignElements: "GMW Marketplace Units - Refer to \"Available Units\" on Season Leaderboard. If this is your first Round of the Season, then 7 Units. TRoRS - 1X Condition Upgrade [Basic] if you add Anti-Hero Propaganda and Medical Emergency Obligations to player deck." },
+                        { name: "Round 4", scenario: "Brotherhood of Badoon + Hydra Assault + Ship Command", difficulty: "Expert", hero: "Adam Warlock, Drax, Gamora, Groot, or Nebula", aspect: "Aggression OR Aggression + Justice + Leadership + Protection", campaignElements: "GMW Marketplace Units - Refer to \"Available Units\" on Season Leaderboard. If this is your first Round of the Season, then 9 Units. TRoRS - X random Rescued Heroes [Taskmaster Encounter Set] added to deck if you add Experimental Weapons Modular Set and attach X random Experimental Weapons to Villain." },
+			            { name: "Round 5", scenario: "Red Skull + Galactic Artifacts + Children of Thanos + Ship Command", difficulty: "Expert", hero: "Captain America", aspect: "Aggression, Justice, Leadership, Protection, or All Basic", campaignElements: "GMW Marketplace Units - Refer to \"Available Units\" on Season Leaderboard. If this is your first Round of the Season, then 13 Units. TRoRS - 1X Condition Upgrade [Improved] if you add Martial Law and Zola's Algorithm to player deck." }
+                    ]
+                },
+                17: {
+                    rules: "Season 17: All-Stars (Oops! All Goblins) will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "The Hood + ???", difficulty: "Standard", hero: "Cyclops, Ghost Spider, Rogue, SP//dr, Spectrum, or War Machine", aspect: "Aggression", note: "Modular Sets: 1 - City in Chaos, 2 - A Mess of Things, 3 - Sinister Assault, 4 - Power Drain, 5 - Running Interference, 6 - Fantasy, 7 - Sinister Syndicate. For your first official attempt, start with Modular set #1 (City in Chaos) in the Encounter Deck. When asked to add a modular set to your Encounter Deck, add the next Modular set on the list, in order. For your second attempt, start with Modular Set #3 (Sinister Assault) and for your third, start with Modular Set #5 (Running Interference). In each attempt, move down the list, circling back to #1 if needed." },
+                        { name: "Round 2", scenario: "Risky Business + Deathstrike", difficulty: "Standard", hero: "Wolverine", aspect: "Aggression, Justice, Leadership, 'Pool, Protection, or All Basic" },
+                        { name: "Round 3", scenario: "Spiral + Goblin Gimmicks + Crime + Fantasy + Horror", difficulty: "Standard", hero: "Black Widow, Captain America, Colossus, Doctor Strange, Rocket Raccoon, or Spider-Man [Miles Morales]", aspect: "Leadership", note: "Show Deck: Each attempt starts with a different environment in play." },
+                        { name: "Round 4", scenario: "Mutagen Formula + Shadow King", difficulty: "Expert", hero: "Storm", aspect: "Aggression, Justice, Leadership, 'Pool, Protection, or All Basic" },
+                        { name: "Round 5", scenario: "Venom Goblin + Longshot + Symbiotic Strength", difficulty: "Expert", hero: "Ironheart, Nova, Phoenix, Shadowcat, Spider-Ham, or Venom", aspect: "Justice" }
+                    ]
+                },
+                18: {
+                    rules: "Season 18: Least Used will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Sabretooth + Brothers Grimm + Mystique", difficulty: "Standard", hero: "Phoenix", aspect: "Aggression, Justice, Leadership, Protection, 'Pool, or All Basic", roundChallenge: "Least damage to Robert Kelly at end of game." },
+                        { name: "Round 2", scenario: "Project Wideawake + Guerrilla Tactics + Zero Tolerance", difficulty: "Standard", hero: "Colossus, Cyclops, Gamora, Ironheart, SP//dr, or War Machine", aspect: "Protection or 'Pool", roundChallenge: "Most Sentinel enemies in play at end of game." },
+                        { name: "Round 3", scenario: "Magneto + Sinister Syndicate", difficulty: "Standard", hero: "Spider-Ham", aspect: "Aggression, Justice, Leadership, Protection, 'Pool, or All Basic", roundChallenge: "Use Valkyrie instead of Spider-Ham as your Hero." },
+                        { name: "Round 4", scenario: "Venom + Crossfire's Crew + Symbiotic Strength", difficulty: "Expert", hero: "Drax, Gambit, Shadowcat, Star-Lord, Storm or Vision", aspect: "Basic or 'Pool", roundChallenge: "Bell Tower on Quiet side at end of game." },
+                        { name: "Round 5", scenario: "Mansion Attack + Reavers + Brotherhood", difficulty: "Expert", hero: "Rogue", aspect: "Aggression, Justice, Leadership, Protection, 'Pool, or All Basic", roundChallenge: "Most Traits on Rogue at end of game." }
+                    ]
+                },
+                19: {
+                    rules: "Season 19: Long Time, No See will operate with standard Solo Play Rules.",
+                    rounds: [
+                        { name: "Round 1", scenario: "Crossbones + Down to Earth + Experimental Weapons + Weapon Master + Legions of Hydra", difficulty: "Standard", hero: "Ant-Man, Captain Marvel, Hulk, Iron Man, Scarlet Witch, or Wasp", aspect: "Leadership", roundChallenge: "Start with \"Exo-Suit\" in play." },
+                        { name: "Round 2", scenario: "Infiltrate the Museum + Black Order + Galactic Artifacts", difficulty: "Standard", hero: "She-Hulk", aspect: "Aggression, Justice, Leadership, Protection, 'Pool, or All Basic", roundChallenge: "Least number of cards in The Collection." },
+                        { name: "Round 3", scenario: "Zola + Whispers of Paranoia", difficulty: "Standard", hero: "Black Panther, Hawkeye, Ms. Marvel, Quicksilver, Spider-Woman, or Thor", aspect: "Protection", roundChallenge: "Most Upgrades in play at end of game." },
+                        { name: "Round 4", scenario: "Rhino + Sci-Fi", difficulty: "Expert", hero: "Spider-Man [Peter Parker]", aspect: "Aggression, Justice, Leadership, Protection, 'Pool, or All Basic", roundChallenge: "Defeat Rhino [Stage II] and Rhino [Stage III] with a Swinging Web Kick." },
+                        { name: "Round 5", scenario: "Ultron + Sentinels", difficulty: "Expert", hero: "Adam Warlock, Ghost-Spider, Groot, Nebula, Spectrum, or Wolverine", aspect: "Justice", roundChallenge: "Add \"Infinity Gauntlet\" Modular Set." }
+                    ]
+                }
+            };
+
+            // --- DOM ELEMENTS ---
+            const seasonSelect = document.getElementById('season-select');
+            const roundSelect = document.getElementById('round-select');
+            const scenarioDetailsDiv = document.getElementById('scenario-details');
+
+            // --- FUNCTIONS ---
+
+            /**
+             * Populates the season dropdown with options from the scenarioData object.
+             */
+            function populateSeasons() {
+                const seasons = Object.keys(scenarioData);
+                seasonSelect.innerHTML = seasons.map(season => `<option value="${season}">Season ${season}</option>`).join('');
+            }
+
+            /**
+             * Populates the round dropdown based on the selected season.
+             */
+            function populateRounds() {
+                const selectedSeason = seasonSelect.value;
+                const rounds = scenarioData[selectedSeason].rounds;
+                roundSelect.innerHTML = rounds.map((round, index) => `<option value="${index}">${round.name}</option>`).join('');
+            }
+
+            /**
+             * Displays the details for the currently selected scenario.
+             */
+            function displayScenario() {
+                const season = scenarioData[seasonSelect.value];
+                const round = season.rounds[roundSelect.value];
+
+                let html = `
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Scenario</p>
+                            <p class="text-lg font-semibold text-red-400">${round.scenario}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Hero</p>
+                            <p class="text-lg font-semibold text-gray-200">${round.hero}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Aspect</p>
+                            <p class="text-lg font-semibold text-gray-200">${round.aspect}</p>
+                        </div>
+                `;
+
+                if (round.difficulty) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Difficulty</p><p class="text-lg font-semibold text-gray-200">${round.difficulty}</p></div>`;
+                }
+                if (round.deckBuilding) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Deck-Building Constraint</p><p class="text-sm text-gray-300">${round.deckBuilding}</p></div>`;
+                }
+                 if (round.note) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Note</p><p class="text-sm text-gray-300 italic">${round.note}</p></div>`;
+                }
+                if (round.specialRules) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Special Rules</p><p class="text-sm text-gray-300">${round.specialRules}</p></div>`;
+                }
+                if (round.campaignUpgrades) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Campaign Upgrades</p><p class="text-sm text-gray-300">${round.campaignUpgrades}</p></div>`;
+                }
+                if (round.campaignElements) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Campaign Elements</p><p class="text-sm text-gray-300">${round.campaignElements}</p></div>`;
+                }
+                 if (round.units) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Units</p><p class="text-lg font-semibold text-gray-200">${round.units}</p></div>`;
+                }
+                if (round.roundChallenge) {
+                    html += `<div><p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Round Challenge</p><p class="text-sm text-gray-300">${round.roundChallenge}</p></div>`;
+                }
+                
+                html += `
+                        <div class="pt-4 mt-4 border-t border-gray-700">
+                            <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Season Rules</p>
+                            <p class="text-sm text-gray-300">${season.rules}</p>
+                        </div>
+                    </div>
+                `;
+
+                scenarioDetailsDiv.innerHTML = html;
+            }
+
+            // --- EVENT LISTENERS ---
+            seasonSelect.addEventListener('change', () => {
+                populateRounds();
+                displayScenario();
+            });
+
+            roundSelect.addEventListener('change', displayScenario);
+
+            // --- INITIALIZATION ---
+            populateSeasons();
+            populateRounds();
+            displayScenario();
+        });
+    </script>
+</body>
+</html>
