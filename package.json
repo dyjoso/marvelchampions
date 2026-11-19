@@ -1,0 +1,12 @@
+{
+  "name": "cerebro-marvel-champions",
+  "private": true,
+  "description": "CEREBRO: fan-made helper tools for the Marvel Champions card game.",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/site.css -o ./assets/css/site.css --minify",
+    "watch:css": "tailwindcss -i ./src/site.css -o ./assets/css/site.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
