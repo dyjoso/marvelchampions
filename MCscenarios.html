@@ -24,28 +24,46 @@
                 <a href="https://docs.google.com/document/d/1AOED4MPkrEGIOAVzV4VJaFAc4bWHfhstOSVTqhSpvHU/edit" target="_blank" rel="noopener noreferrer" class="text-red-400 hover:text-red-300 underline">Every Villain's Best Modular Sets (Google Doc)</a></p>
         </header>
 
-        <div class="panel p-4 sm:p-6 mb-4 grid gap-4 md:grid-cols-3">
-            <div>
-                <label for="campaign-select" class="field-label">Campaign</label>
-                <select id="campaign-select" class="field"></select>
+        <div class="panel p-4 sm:p-6 mb-4">
+            <div class="grid gap-4 md:grid-cols-3">
+                <div>
+                    <label for="campaign-select" class="field-label">Campaign</label>
+                    <select id="campaign-select" class="field"></select>
+                </div>
+                <div>
+                    <label for="villain-select" class="field-label">Villain</label>
+                    <select id="villain-select" class="field"></select>
+                </div>
+                <div>
+                    <label for="difficulty-select" class="field-label">Difficulty</label>
+                    <select id="difficulty-select" class="field"></select>
+                </div>
             </div>
-            <div>
-                <label for="villain-select" class="field-label">Villain</label>
-                <select id="villain-select" class="field"></select>
-            </div>
-            <div>
-                <label for="difficulty-select" class="field-label">Difficulty</label>
-                <select id="difficulty-select" class="field"></select>
-            </div>
+            <label class="mt-4 inline-flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                <input id="quick-only" type="checkbox" class="w-4 h-4 rounded border-gray-500 bg-gray-700 text-cyan-500 focus:ring-cyan-500">
+                Quick picks only <span class="text-gray-500">(✔ = safer choices suitable for most decks)</span>
+            </label>
         </div>
+
+        <section id="villain-info" class="mb-4 rounded-lg border border-gray-700 bg-gray-800/50 p-4 text-sm" hidden></section>
 
         <p id="result-count" class="text-sm text-gray-400 mb-4" aria-live="polite"></p>
 
         <div id="results-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         <div id="no-results" class="text-center py-12 text-gray-500" hidden>
-            <p class="text-2xl font-semibold">No scenarios found.</p>
+            <p class="text-2xl font-semibold">No suggestions found.</p>
             <p class="text-lg">Please try adjusting your selections.</p>
         </div>
+
+        <details class="mt-8 panel p-4 text-sm">
+            <summary class="cursor-pointer font-semibold text-gray-200">How to read the cards</summary>
+            <div class="mt-3 space-y-2 text-gray-300">
+                <p>The difficulty runs from −3 (much easier) to +4 (a lot harder). +0 is about as hard as the default modular set. A “?” means the rating is uncertain in the source.</p>
+                <p>Pack codes show which product contains each modular set:</p>
+                <dl id="pack-legend" class="grid sm:grid-cols-2 gap-x-6 gap-y-1"></dl>
+                <p class="text-gray-400">Other pack codes refer to the hero pack that contains the modular set.</p>
+            </div>
+        </details>
     </main>
 
     <footer id="site-footer" data-credit="Data based on VillainTheory's &quot;Every Villain's Best Modular Sets&quot; document."></footer>
@@ -55,11 +73,14 @@
     <script>
         const sets = window.MODULAR_SETS;
         const groups = window.MODULAR_GROUPS;
+        const villainInfo = window.MODULAR_VILLAIN_INFO || {};
+        const packNames = window.MODULAR_PACKS || {};
         const esc = MC.escapeHtml;
         const $ = id => document.getElementById(id);
         const campaignSelect = $('campaign-select');
         const villainSelect = $('villain-select');
         const difficultySelect = $('difficulty-select');
+        const quickOnly = $('quick-only');
         const results = $('results-container');
         const LAST_PICK = 'cerebro.modulars.last';
 
@@ -77,6 +98,12 @@
         const options = (list, toLabel = x => x) =>
             list.map(v => `<option value="${esc(v)}">${esc(toLabel(v))}</option>`).join('');
 
+        // Pack codes get a tooltip with the full product name.
+        const packHtml = packs => packs.split(',').map(p => p.trim()).filter(Boolean).map(code => {
+            const full = packNames[code];
+            return full ? `<abbr title="${esc(full)}" class="no-underline cursor-help">${esc(code)}</abbr>` : esc(code);
+        }).join(', ');
+
         function populateVillains() {
             const c = campaignSelect.value;
             const villains = c === 'All' ? Object.values(groups).flat() : (groups[c] || []);
@@ -84,24 +111,44 @@
         }
 
         function populateDifficulties() {
-            const diffs = [...new Set(sets.filter(s => s.villain === villainSelect.value).map(s => s.difficulty))]
+            const diffs = [...new Set(sets.filter(s => s.villain === villainSelect.value && s.difficulty).map(s => s.difficulty))]
                 .sort((a, b) => diffNum(a) - diffNum(b));
             difficultySelect.innerHTML = `<option value="All">All Difficulties</option>` + options(diffs, d => `Difficulty: ${d}`);
+            difficultySelect.disabled = diffs.length === 0;
+        }
+
+        function renderInfo() {
+            const v = villainSelect.value;
+            const i = villainInfo[v] || {};
+            const unreleased = sets.some(s => s.villain === v && s.unreleased);
+            const parts = [];
+            if (unreleased) parts.push(`<p class="text-amber-300 font-semibold">Unreleased: these are speculative suggestions for a product that isn't out yet.</p>`);
+            if (i.themes) parts.push(`<p><span class="text-gray-400">Themes:</span> ${esc(i.themes)}</p>`);
+            if (i.mechanics) parts.push(`<p><span class="text-gray-400">Mechanics:</span> ${esc(i.mechanics)}</p>`);
+            (i.notes || []).forEach(n => parts.push(`<p class="text-cyan-200">${esc(n)}</p>`));
+            $('villain-info').innerHTML = parts.length ? `<div class="space-y-1">${parts.join('')}</div>` : '';
+            $('villain-info').hidden = !parts.length;
         }
 
         function card(s) {
             const isDefault = /^DEFAULT MODULAR/i.test(s.name);
             const title = isDefault ? (/S$/i.test(s.name.trim()) ? 'Default modulars' : 'Default modular') : s.name;
+            const badges = [
+                s.recommended ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-200 border border-cyan-800">✔ Quick pick</span>` : '',
+                s.unreleased ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-950 text-amber-200 border border-amber-800">Unreleased</span>` : '',
+            ].join('');
             return `
                 <article class="panel p-4 flex flex-col transition duration-200 hover:-translate-y-0.5 hover:border-red-500/60 ${isDefault ? 'ring-1 ring-gray-500' : ''}">
-                    <div class="flex justify-between items-start gap-2 mb-3">
+                    <div class="flex justify-between items-start gap-2">
                         <h2 class="text-xl font-bold text-white leading-tight">${esc(title)}</h2>
-                        <span class="text-base font-bold px-3 py-0.5 rounded-full whitespace-nowrap ${difficultyColor(s.difficulty)}"
-                              title="Difficulty relative to the default modular">${esc(s.difficulty)}</span>
+                        ${s.difficulty ? `<span class="text-base font-bold px-3 py-0.5 rounded-full whitespace-nowrap ${difficultyColor(s.difficulty)}"
+                              title="Difficulty relative to the default modular">${esc(s.difficulty)}</span>` : ''}
                     </div>
-                    <div class="flex-grow space-y-3">
+                    ${badges ? `<div class="flex flex-wrap gap-1.5 mt-2">${badges}</div>` : ''}
+                    <div class="flex-grow space-y-3 mt-3">
                         <div><p class="text-sm text-gray-400">Modular Set(s)</p><p class="text-blue-300 font-semibold">${esc(s.modulars)}</p></div>
-                        <div><p class="text-sm text-gray-400">Pack(s)</p><p class="text-green-300">${esc(s.packs)}</p></div>
+                        ${s.mainSchemes ? `<div><p class="text-sm text-gray-400">Main Schemes</p><p class="text-purple-300">${esc(s.mainSchemes)}</p></div>` : ''}
+                        <div><p class="text-sm text-gray-400">Pack(s)</p><p class="text-green-300">${packHtml(s.packs)}</p></div>
                         <div><p class="text-sm text-gray-400">Notes</p><p class="text-gray-300">${esc(s.notes || 'No notes available.')}</p></div>
                     </div>
                 </article>`;
@@ -109,17 +156,24 @@
 
         function render() {
             const d = difficultySelect.value;
-            const list = sets.filter(s => s.villain === villainSelect.value && (d === 'All' || s.difficulty === d));
+            const list = sets.filter(s => s.villain === villainSelect.value
+                && (d === 'All' || s.difficulty === d)
+                && (!quickOnly.checked || s.recommended));
+            renderInfo();
             results.innerHTML = list.map(card).join('');
             $('no-results').hidden = list.length > 0;
             $('result-count').textContent = list.length ? `${list.length} suggestion${list.length > 1 ? 's' : ''} for ${villainSelect.value}` : '';
-            MC.store.set(LAST_PICK, { campaign: campaignSelect.value, villain: villainSelect.value, difficulty: d });
+            MC.store.set(LAST_PICK, { campaign: campaignSelect.value, villain: villainSelect.value, difficulty: d, quick: quickOnly.checked });
         }
+
+        $('pack-legend').innerHTML = Object.entries(packNames)
+            .map(([code, name]) => `<div><dt class="inline font-semibold text-green-300">${esc(code)}</dt> <dd class="inline">${esc(name)}</dd></div>`).join('');
 
         campaignSelect.innerHTML = `<option value="All">All Campaigns</option>` + options(Object.keys(groups));
         campaignSelect.addEventListener('change', () => { populateVillains(); populateDifficulties(); render(); });
         villainSelect.addEventListener('change', () => { populateDifficulties(); render(); });
         difficultySelect.addEventListener('change', render);
+        quickOnly.addEventListener('change', render);
 
         // Restore the last selection, falling back to the Core Set.
         const last = MC.store.get(LAST_PICK) || {};
@@ -128,6 +182,7 @@
         if (last.villain && [...villainSelect.options].some(o => o.value === last.villain)) villainSelect.value = last.villain;
         populateDifficulties();
         if (last.difficulty && [...difficultySelect.options].some(o => o.value === last.difficulty)) difficultySelect.value = last.difficulty;
+        quickOnly.checked = !!last.quick;
         render();
     </script>
 </body>

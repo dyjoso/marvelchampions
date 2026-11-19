@@ -17,6 +17,7 @@ data/                 Content you edit when new things come out
   campaigns.js          Campaign scenarios (setup, victory, campaign info panels)
   modular-sets.js       Modular set suggestions + which villains belong to which box
   scl-seasons.js        SCL seasons and rounds
+tools/                Script that rebuilds modular-sets.js from the master Google Doc
 assets/css/site.css   Built stylesheet (generated, don't edit by hand)
 assets/js/site.js     Shared menu bar, footer and helpers
 assets/img/           Favicon and images
@@ -29,7 +30,7 @@ Edit the files in `data/`. Each one has a comment at the top explaining the form
 
 - **New SCL season:** add a numbered entry at the end of `data/scl-seasons.js`. The dropdown shows the newest season first.
 - **New campaign:** add an entry to `data/campaigns.js`. Lines that start with `Expert Campaign:` get the highlighted box automatically.
-- **New villain:** add its suggestions to `MODULAR_SETS` and its name to the right box in `MODULAR_GROUPS` (`data/modular-sets.js`). The names must match exactly.
+- **Modular sets:** `data/modular-sets.js` is generated from VillainTheory's master Google Doc. When the doc changes, run `sh tools/update-modulars.sh` (needs Python and curl), check the result with `git diff`, then commit. If the doc adds a new villain or box, add its heading to the `VILLAINS` list in `tools/build_modulars.py` first; the script tells you about any table it can't place.
 
 ## Changing the styling
 
