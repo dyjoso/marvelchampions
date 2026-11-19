@@ -63,5 +63,5 @@ Campaign logs, the last selections on each page and the scoring settings are sto
 ## Credits
 
 - Solo Champions League and its data: [Innsmouth Bear](https://www.bearoverinnsmouth.com/solo-champions-league)
-- Modular set suggestions: VillainTheory's "Every Villain's Best Modular Sets"
+- Modular set suggestions: VillainTheory's ["Every Villain's Best Modular Sets"](https://docs.google.com/document/d/1AOED4MPkrEGIOAVzV4VJaFAc4bWHfhstOSVTqhSpvHU/edit)
 - Marvel Champions is published by Fantasy Flight Games. This is an unofficial fan project, not affiliated with or endorsed by Fantasy Flight Games or Marvel.
