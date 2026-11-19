@@ -48,11 +48,13 @@ VILLAINS = {
     'CAPTAIN AMERICA': ('Captain America', 'Civil War'), 'SPIDER-WOMAN': ('Spider-Woman', 'Civil War'),
     'SHE-HULK': ('She-Hulk', 'Synthezoid Smackdown'), 'VISION': ('Vision', 'Synthezoid Smackdown'),
 }
-UNRELEASED_GROUP = 'Fear No Evil (unreleased / speculative)'
+FNE_GROUP = 'Fear No Evil'
 for h in ['BULLSEYE', 'ELECTRO', 'HAMMERHEAD', 'PURPLE MAN', 'TYPHOID MARY', 'THE GETAWAY',
           'PROTECTION RACKET', 'THE RAFT BREAKOUT', 'STOP THE PRESSES!', 'KINGPIN']:
     name = ' '.join(w.capitalize() for w in h.lower().split()).replace('Stop The Presses!', 'Stop the Presses!')
-    VILLAINS[h + ' [UNRELEASED / SPECULATIVE]'] = (name, UNRELEASED_GROUP)
+    # The doc still tags these headings as unreleased; accept them with or without that tag.
+    VILLAINS[h + ' [UNRELEASED / SPECULATIVE]'] = (name, FNE_GROUP)
+    VILLAINS[h] = (name, FNE_GROUP)
 
 def lines(cell):
     return [l.strip() for l in cell.split('\n') if l.strip()]
@@ -126,7 +128,6 @@ for t in tables[1:]:
         e['packs'] = ', '.join(lines(r[4]))
         if name_has_schemes and extra: e['mainSchemes'] = ', '.join(extra)
         if recommended: e['recommended'] = True
-        if group == UNRELEASED_GROUP: e['unreleased'] = True
         sets.append(e)
 
 def js(v): return json.dumps(v, ensure_ascii=False)
@@ -138,7 +139,7 @@ def entry(e):
 out = ['// VillainTheory\'s "Every Villain\'s Best Modular Sets", one entry per suggestion.',
        '// Source: https://docs.google.com/document/d/1AOED4MPkrEGIOAVzV4VJaFAc4bWHfhstOSVTqhSpvHU/edit',
        '// The villain name must match a name in MODULAR_GROUPS below.',
-       '// recommended: true = the doc\'s ✔️ quick recommendation. unreleased: true = speculative, not yet published.',
+       '// recommended: true = the doc\'s ✔️ quick recommendation. Add unreleased: true to label a suggestion as speculative.',
        '// mainSchemes is only used by the Civil War / Synthezoid Smackdown villains.',
        'window.MODULAR_SETS = [']
 last = None
