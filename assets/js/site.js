@@ -22,7 +22,7 @@
     nav.innerHTML = `
       <div class="container mx-auto px-4 sm:px-6 flex items-center gap-4 h-14">
         <a href="index.html" class="flex items-center gap-2 shrink-0 font-bold tracking-wide text-red-500 hover:text-red-400">
-          <img src="assets/img/favicon.svg" alt="CEREBRO home" class="w-7 h-7">
+          <img src="assets/img/favicon.png" alt="CEREBRO home" class="w-7 h-7 rounded-md">
           <span class="hidden lg:inline">CEREBRO</span>
         </a>
         <div class="flex gap-0.5 sm:gap-1 overflow-x-auto -mr-4 pr-4 sm:mr-0 sm:pr-0">${links}</div>
