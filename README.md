@@ -6,6 +6,7 @@ Fan-made tools for the Marvel Champions card game. The site is plain HTML, CSS a
 |---|---|---|
 | Home | `index.html` | Menu of tools |
 | Campaign Guide | `MCcampaigns.html` | Setup and victory steps for every campaign, plus a campaign log that saves automatically |
+| Hero Gauntlet | `MCgauntlet.html` | A five-villain hero test with a saved results table for comparing heroes (scenarios in `data/gauntlet.js`) |
 | Best Modular Sets | `MCscenarios.html` | VillainTheory's modular set suggestions, filtered by campaign, villain and difficulty |
 | SCL Archive | `MC-solo-champions-league-archive.html` | Every Solo Champions League season and round. Links like `#s19r3` open a specific round |
 | Scoring | `MCscoring.html` | SCL-inspired score calculator with an editable formula (Designer Mode) |

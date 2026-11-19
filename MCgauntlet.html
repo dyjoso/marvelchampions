@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Gauntlet · CEREBRO</title>
+    <meta name="description" content="The Gauntlet: a five-villain Marvel Champions campaign that tests every hero against minions, threat, big hits, deck disruption and side schemes, with a saved results table.">
+    <meta property="og:title" content="The Hero Gauntlet">
+    <meta name="theme-color" content="#111827">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+    <nav id="site-nav"></nav>
+
+    <main class="page max-w-6xl">
+        <header class="text-center mb-8">
+            <h1 class="page-title">The Hero Gauntlet</h1>
+            <p class="page-intro max-w-2xl mx-auto">Five villains, five different tests. Run your favourite heroes through the same gauntlet, score each fight with the
+                <a href="MCscoring.html" class="text-cyan-300 hover:text-cyan-200 underline">Scoring tool</a>, and see how they compare.</p>
+        </header>
+
+        <section aria-labelledby="scenarios-heading">
+            <h2 id="scenarios-heading" class="sr-only">Scenarios</h2>
+            <ol id="scenario-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></ol>
+        </section>
+
+        <section class="grid gap-4 md:grid-cols-2 mt-6">
+            <div class="panel p-5">
+                <h2 class="text-xl font-bold text-cyan-400 mb-3">Rules for fair comparisons</h2>
+                <ul id="rules" class="list-disc pl-5 space-y-2 text-sm text-gray-300"></ul>
+            </div>
+            <div class="panel p-5">
+                <h2 class="text-xl font-bold text-cyan-400 mb-3">Scoring tips</h2>
+                <ul id="scoring-tips" class="list-disc pl-5 space-y-2 text-sm text-gray-300"></ul>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="mt-10" aria-labelledby="results-heading">
+            <div class="flex flex-wrap items-end justify-between gap-3 mb-4">
+                <h2 id="results-heading" class="text-2xl font-bold text-red-400">Hero Results</h2>
+                <div class="flex items-center gap-2">
+                    <label for="variant-filter" class="text-sm text-gray-400">Show</label>
+                    <select id="variant-filter" class="field w-auto py-1.5">
+                        <option value="All">All runs</option>
+                        <option value="Standard">Standard runs</option>
+                        <option value="Iron">Iron runs</option>
+                    </select>
+                </div>
+            </div>
+
+            <form id="run-form" class="panel p-5 mb-6" autocomplete="off">
+                <h3 id="form-title" class="text-lg font-semibold text-gray-100 mb-4">Add a run</h3>
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <div>
+                        <label for="hero" class="field-label">Hero</label>
+                        <input id="hero" class="field" list="hero-list" required placeholder="e.g. Spider-Man (Peter Parker)">
+                        <datalist id="hero-list"></datalist>
+                    </div>
+                    <div>
+                        <label for="aspect" class="field-label">Aspect / deck</label>
+                        <input id="aspect" class="field" placeholder="e.g. Justice">
+                    </div>
+                    <div>
+                        <label for="variant" class="field-label">Variant</label>
+                        <select id="variant" class="field">
+                            <option value="Standard">Standard (fresh each fight)</option>
+                            <option value="Iron">Iron (HP carries over)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="score-fields" class="grid gap-4 grid-cols-2 sm:grid-cols-5 mt-4"></div>
+                <p class="text-xs text-gray-500 mt-2">Leave a score blank if you haven't played that fight yet. You can come back and edit the run later.</p>
+                <div class="mt-4">
+                    <label for="notes" class="field-label">Notes</label>
+                    <input id="notes" class="field" placeholder="Optional: deck link, highlights, what went wrong…">
+                </div>
+                <div class="flex flex-wrap justify-end gap-3 mt-4">
+                    <button id="cancel-edit" type="button" class="btn-ghost" hidden>Cancel</button>
+                    <button type="submit" id="save-run" class="btn-primary">Add run</button>
+                </div>
+            </form>
+
+            <div class="panel overflow-x-auto relative">
+                <table class="w-full text-sm">
+                    <thead id="results-head" class="text-left text-gray-400 border-b border-gray-700"></thead>
+                    <tbody id="results-body"></tbody>
+                </table>
+                <p id="no-runs" class="p-6 text-center text-gray-500">No runs yet. Add your first hero above.</p>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">The best score in each column is highlighted. Results are saved in this browser. Use Export to back them up.</p>
+
+            <div class="flex flex-wrap justify-end gap-3 mt-4">
+                <button id="export-runs" type="button" class="btn-ghost">Export results</button>
+                <button id="import-runs" type="button" class="btn-ghost">Import results</button>
+                <input id="import-file" type="file" accept="application/json,.json" class="hidden">
+            </div>
+        </section>
+    </main>
+
+    <footer id="site-footer" data-credit="Modular set choices from VillainTheory's &quot;Every Villain's Best Modular Sets&quot;."></footer>
+
+    <script src="assets/js/site.js"></script>
+    <script src="data/gauntlet.js"></script>
+    <script>
+        const G = window.GAUNTLET;
+        const esc = MC.escapeHtml;
+        const $ = id => document.getElementById(id);
+        const STORE_KEY = 'cerebro.gauntlet.runs';
+        const FILTER_KEY = 'cerebro.gauntlet.filter';
+
+        // --- Scenario cards ---
+        $('scenario-list').innerHTML = G.scenarios.map((s, i) => {
+            const expert = /expert/i.test(s.mode);
+            return `
+                <li class="panel p-5 flex flex-col">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="eyebrow">Fight ${i + 1} · ${esc(s.test)}</p>
+                            <h3 class="text-2xl font-bold text-white mt-1">${esc(s.villain)}</h3>
+                        </div>
+                        <span class="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${expert ? 'bg-red-600 text-red-50' : 'bg-cyan-500 text-cyan-950'}">${esc(s.mode)}</span>
+                    </div>
+                    <p class="text-gray-300 mt-3 flex-grow">${esc(s.summary)}</p>
+                    <dl class="mt-4 space-y-2 text-sm">
+                        <div><dt class="text-gray-400">Modular set(s)</dt><dd class="text-blue-300 font-medium">${esc(s.modulars)}</dd></div>
+                        <div><dt class="text-gray-400">You'll need</dt><dd class="text-green-300">${esc(s.packs)}</dd></div>
+                    </dl>
+                    ${s.scoringTip ? `<p class="hint-text mt-3">Scoring: ${esc(s.scoringTip)}</p>` : ''}
+                    ${s.alternative ? `<p class="text-xs text-gray-400 mt-3">${esc(s.alternative)}</p>` : ''}
+                </li>`;
+        }).join('');
+        $('rules').innerHTML = G.rules.map(r => `<li>${esc(r)}</li>`).join('');
+        $('scoring-tips').innerHTML = G.scoringTips.map(r => `<li>${esc(r)}</li>`).join('');
+
+        // --- Results ---
+        let runs = MC.store.get(STORE_KEY, []);
+        if (!Array.isArray(runs)) runs = [];
+        let editingId = null;
+        const save = () => MC.store.set(STORE_KEY, runs);
+
+        $('score-fields').innerHTML = G.scenarios.map((s, i) => `
+            <div>
+                <label for="score-${s.id}" class="field-label truncate" title="${esc(s.villain)}">${i + 1}. ${esc(s.villain)}</label>
+                <input id="score-${s.id}" type="number" inputmode="numeric" class="field" placeholder="Score">
+            </div>`).join('');
+
+        const scoresOf = r => G.scenarios.map(s => (typeof r.scores?.[s.id] === 'number' ? r.scores[s.id] : null));
+        const played = r => scoresOf(r).filter(v => v !== null).length;
+        const total = r => scoresOf(r).reduce((sum, v) => sum + (v ?? 0), 0);
+
+        function renderTable() {
+            const filter = $('variant-filter').value;
+            const list = runs.filter(r => filter === 'All' || r.variant === filter)
+                // Complete runs first, then by total score.
+                .sort((a, b) => (played(b) === 5) - (played(a) === 5) || total(b) - total(a));
+
+            // Best score per column (and best complete total) among the visible runs.
+            const best = G.scenarios.map((_, i) => Math.max(...list.map(r => scoresOf(r)[i] ?? -Infinity)));
+            const bestTotal = Math.max(...list.filter(r => played(r) === 5).map(total), -Infinity);
+            const hi = 'text-amber-300 font-bold';
+
+            $('results-head').innerHTML = `<tr>
+                <th class="p-3">#</th><th class="p-3">Hero</th><th class="p-3">Variant</th>
+                ${G.scenarios.map((s, i) => `<th class="p-3 text-right whitespace-nowrap" title="${esc(s.test)}">${i + 1}. ${esc(s.villain)}</th>`).join('')}
+                <th class="p-3 text-right">Total</th><th class="p-3"><span class="sr-only">Actions</span></th></tr>`;
+
+            $('results-body').innerHTML = list.map((r, idx) => {
+                const sc = scoresOf(r);
+                const complete = played(r) === 5;
+                return `<tr class="border-b border-gray-800 align-top">
+                    <td class="p-3 text-gray-500">${complete ? idx + 1 : '–'}</td>
+                    <td class="p-3 min-w-[10rem]">
+                        <div class="font-semibold text-white">${esc(r.hero)}</div>
+                        ${r.aspect ? `<div class="text-xs text-gray-400">${esc(r.aspect)}</div>` : ''}
+                        ${r.notes ? `<div class="text-xs text-gray-500 mt-1 max-w-xs">${esc(r.notes)}</div>` : ''}
+                    </td>
+                    <td class="p-3 text-gray-300">${esc(r.variant)}</td>
+                    ${sc.map((v, i) => `<td class="p-3 text-right font-mono ${v !== null && v === best[i] ? hi : 'text-gray-200'}">${v ?? '<span class="text-gray-600">–</span>'}</td>`).join('')}
+                    <td class="p-3 text-right font-mono ${complete && total(r) === bestTotal ? hi : 'text-white'}">
+                        ${total(r)}${complete ? '' : `<div class="text-xs text-gray-500 font-sans">${played(r)}/5 played</div>`}
+                    </td>
+                    <td class="p-3 whitespace-nowrap text-right">
+                        <button type="button" class="text-cyan-300 hover:text-cyan-200 text-xs font-semibold mr-3" data-edit="${r.id}">Edit</button>
+                        <button type="button" class="text-red-400 hover:text-red-300 text-xs font-semibold" data-delete="${r.id}">Delete</button>
+                    </td>
+                </tr>`;
+            }).join('');
+            $('no-runs').hidden = list.length > 0;
+
+            $('hero-list').innerHTML = [...new Set(runs.map(r => r.hero))].map(h => `<option value="${esc(h)}">`).join('');
+        }
+
+        function resetForm() {
+            editingId = null;
+            $('run-form').reset();
+            $('form-title').textContent = 'Add a run';
+            $('save-run').textContent = 'Add run';
+            $('cancel-edit').hidden = true;
+        }
+
+        $('run-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const scores = {};
+            G.scenarios.forEach(s => {
+                const v = $(`score-${s.id}`).value;
+                if (v !== '') scores[s.id] = Math.round(Number(v));
+            });
+            const run = {
+                id: editingId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+                hero: $('hero').value.trim(),
+                aspect: $('aspect').value.trim(),
+                variant: $('variant').value,
+                notes: $('notes').value.trim(),
+                scores,
+                updated: new Date().toISOString(),
+            };
+            if (!run.hero) return;
+            const i = runs.findIndex(r => r.id === run.id);
+            if (i >= 0) runs[i] = run; else runs.push(run);
+            save();
+            resetForm();
+            renderTable();
+        });
+
+        $('cancel-edit').addEventListener('click', resetForm);
+
+        $('results-body').addEventListener('click', e => {
+            const editId = e.target.dataset.edit;
+            const delId = e.target.dataset.delete;
+            if (editId) {
+                const r = runs.find(x => x.id === editId);
+                editingId = r.id;
+                $('hero').value = r.hero;
+                $('aspect').value = r.aspect || '';
+                $('variant').value = r.variant;
+                $('notes').value = r.notes || '';
+                G.scenarios.forEach((s, i) => { $(`score-${s.id}`).value = scoresOf(r)[i] ?? ''; });
+                $('form-title').textContent = `Edit run: ${r.hero}`;
+                $('save-run').textContent = 'Save changes';
+                $('cancel-edit').hidden = false;
+                $('run-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (delId) {
+                const r = runs.find(x => x.id === delId);
+                if (!confirm(`Delete the ${r.hero} run? This cannot be undone.`)) return;
+                runs = runs.filter(x => x.id !== delId);
+                if (editingId === delId) resetForm();
+                save();
+                renderTable();
+            }
+        });
+
+        $('variant-filter').addEventListener('change', () => { MC.store.set(FILTER_KEY, $('variant-filter').value); renderTable(); });
+
+        $('export-runs').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify({ app: 'CEREBRO', type: 'gauntlet', version: 1, exported: new Date().toISOString(), runs }, null, 2)],
+                { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `cerebro-gauntlet-results-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        $('import-runs').addEventListener('click', () => $('import-file').click());
+        $('import-file').addEventListener('change', async e => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file) return;
+            try {
+                const data = JSON.parse(await file.text());
+                const incoming = (data.runs || []).filter(r => r && r.id && r.hero && r.scores);
+                if (!incoming.length) throw new Error('empty');
+                const replaced = incoming.filter(r => runs.some(x => x.id === r.id)).length;
+                if (replaced && !confirm(`${replaced} imported run(s) will replace runs with the same ID. Continue?`)) return;
+                incoming.forEach(r => {
+                    const i = runs.findIndex(x => x.id === r.id);
+                    if (i >= 0) runs[i] = r; else runs.push(r);
+                });
+                save();
+                renderTable();
+                alert(`Imported ${incoming.length} run(s).`);
+            } catch {
+                alert('That file could not be read. Choose a file made with "Export results".');
+            }
+        });
+
+        const savedFilter = MC.store.get(FILTER_KEY);
+        if (['All', 'Standard', 'Iron'].includes(savedFilter)) $('variant-filter').value = savedFilter;
+        renderTable();
+    </script>
+</body>
+</html>

@@ -3,6 +3,7 @@
   const PAGES = [
     { href: 'index.html', label: 'Home' },
     { href: 'MCcampaigns.html', label: 'Campaigns' },
+    { href: 'MCgauntlet.html', label: 'Gauntlet' },
     { href: 'MCscenarios.html', label: 'Modular Sets' },
     { href: 'MC-solo-champions-league-archive.html', label: 'SCL Archive' },
     { href: 'MCscoring.html', label: 'Scoring' },
