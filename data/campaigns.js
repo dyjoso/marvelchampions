@@ -736,5 +736,139 @@ Expert Campaign: Each player may place one secret counter on a BOARD MEMBER envi
                 <a href="assets/img/AOScampaignLog.jpg" target="_blank" rel="noopener" title="Open full size"><img src="assets/img/AOScampaignLog.jpg" alt="Evidence combinations chart from the Agents of S.H.I.E.L.D. campaign log" loading="lazy" class="w-full max-w-2xl mx-auto rounded-lg border border-gray-600"></a><p class="text-xs text-gray-500 mt-2 text-center">Tap the chart to open it full size.</p>
             </div>
         </div>`
+},
+"Fear No Evil": {
+    scenarios: [
+        {
+            name: "Art Museum Heist",
+            modules: "Art Museum Heist, Cops, The Owl, Standard & your chosen Underling villain's encounter set",
+            setup: `First follow the Campaign Setup steps (see Fear No Evil Campaign Rules below) to progress scenarios and choose your Underling villain.
+Place 1-per-player threat on the main scheme for each check mark beside "Art Museum Heist" in the campaign log (2-per-player threat instead in expert mode).
+Art Pieces: stage 1A attaches 1 random ART attachment to the villain. Each ART attachment on the villain adds 1-per-player threat to the main scheme in step 1 of each villain phase. Use the art piece's Hero Action to take it; the villain steals one back after each undefended attack against an identity holding one.
+Expert Campaign: Set each player's HP to the remaining HP recorded in the campaign log. Each player may deal themself 1 facedown encounter card to heal damage from their identity equal to their REC.`,
+            victory: `If Disturbed Psyche is in play with at least 2 threat on it, check "Trust Established?" in the campaign log.
+If the Typhoid Mary/Bloody Mary ally is in the victory display, check "Mary Defeated?".
+Record the title of each unique ally and support that was removed from the game.
+Check "Completed" for Art Museum Heist, then return to the Campaign Setup steps.
+Expert Campaign: Record each identity's remaining HP (no higher than their base HP).
+Expert Campaign: If the players lost, progress "Art Museum Heist" in the campaign log instead of checking Completed.`
+        },
+        {
+            name: "The Getaway",
+            modules: "The Getaway, Cops, Drive, Standard & your chosen Underling villain's encounter set",
+            setup: `First follow the Campaign Setup steps (see Fear No Evil Campaign Rules below) to progress scenarios and choose your Underling villain.
+If there is at least 1 check mark beside "The Getaway" in the campaign log, find Jackknifed Tanker Truck and reveal it. If there are 2 check marks, also place an additional 1-per-player threat on it (2-per-player threat instead in expert mode).
+Speed counters: one is added to the main scheme at the end of each round unless the main scheme has no threat on it. Encounter cards get nastier the more counters there are.
+Out Front/Alongside: this attachment starts the game Out Front. While Out Front, damage you would deal to the villain removes that much threat from the main scheme instead. When the main scheme has no threat, it flips to Alongside (resolve its When Revealed). It flips back at the end of any round with threat on the main scheme.
+Expert Campaign: Set each player's HP to the remaining HP recorded in the campaign log. Each player may deal themself 1 facedown encounter card to heal damage from their identity equal to their REC.`,
+            victory: `If Disturbed Psyche is in play with at least 2 threat on it, check "Trust Established?" in the campaign log.
+If the Typhoid Mary/Bloody Mary ally is in the victory display, check "Mary Defeated?".
+Record the title of each unique ally and support that was removed from the game.
+Check "Completed" for The Getaway, then return to the Campaign Setup steps.
+Expert Campaign: Record each identity's remaining HP (no higher than their base HP).
+Expert Campaign: If the players lost, progress "The Getaway" in the campaign log instead of checking Completed.`
+        },
+        {
+            name: "Protection Racket",
+            modules: "Protection Racket (main schemes), Disasters, Tracksuit Mafia, Standard & your chosen Underling villain's encounter set",
+            setup: `First follow the Campaign Setup steps (see Fear No Evil Campaign Rules below) to progress scenarios and choose your Underling villain.
+Separate main schemes: each player chooses one of the five Protection Racket main schemes and puts it in their own play area (in standard mode you may look at the 1B sides before choosing).
+Place 1 threat on each main scheme for each check mark beside "Protection Racket" in the campaign log (2 threat instead in expert mode).
+Player cards that refer to "the main scheme" only affect the main scheme in that player's play area. Villain, side scheme and environment effects apply to all main schemes, and each acceleration token adds 1 threat to each main scheme.
+Expert Campaign: Set each player's HP to the remaining HP recorded in the campaign log. Each player may deal themself 1 facedown encounter card to heal damage from their identity equal to their REC.`,
+            victory: `If Disturbed Psyche is in play with at least 2 threat on it, check "Trust Established?" in the campaign log.
+If the Typhoid Mary/Bloody Mary ally is in the victory display, check "Mary Defeated?".
+Record the title of each unique ally and support that was removed from the game.
+Check "Completed" for Protection Racket, then return to the Campaign Setup steps.
+Expert Campaign: Record each identity's remaining HP (no higher than their base HP).
+Expert Campaign: If the players lost, progress "Protection Racket" in the campaign log instead of checking Completed.`
+        },
+        {
+            name: "The Raft Breakout",
+            modules: "The Raft Breakout, The Owl, Tombstone, Standard & your chosen Underling villain's encounter set",
+            setup: `First follow the Campaign Setup steps (see Fear No Evil Campaign Rules below) to progress scenarios and choose your Underling villain.
+If there is at least 1 check mark beside "The Raft Breakout" in the campaign log, give each PRISONER minion in play a tough status card. If there are 2 check marks, also give each of those minions a facedown boost card.
+Master Key: when the villain schemes against a player, any minions among its boost cards resolve their boost effects as normal and are then dealt to that player as facedown encounter cards instead of being discarded.
+Expert Campaign: Set each player's HP to the remaining HP recorded in the campaign log. Each player may deal themself 1 facedown encounter card to heal damage from their identity equal to their REC.`,
+            victory: `If Disturbed Psyche is in play with at least 2 threat on it, check "Trust Established?" in the campaign log.
+If the Typhoid Mary/Bloody Mary ally is in the victory display, check "Mary Defeated?".
+Record the title of each unique ally and support that was removed from the game.
+Check "Completed" for The Raft Breakout, then return to the Campaign Setup steps.
+Expert Campaign: Record each identity's remaining HP (no higher than their base HP).
+Expert Campaign: If the players lost, progress "The Raft Breakout" in the campaign log instead of checking Completed.`
+        },
+        {
+            name: "Stop the Presses!",
+            modules: "Stop the Presses!, Tombstone, Tracksuit Mafia, Standard & your chosen Underling villain's encounter set",
+            setup: `First follow the Campaign Setup steps (see Fear No Evil Campaign Rules below) to progress scenarios and choose your Underling villain.
+Each player starts with a random DAILY BUGLE support under their control (Uses: 3 stamina counters).
+Remove 1 stamina counter from each DAILY BUGLE support for each check mark beside "Stop the Presses!" in the campaign log.
+If a DAILY BUGLE support leaves play, the players lose. Supports lose stamina when their abilities are used, and the main scheme removes 1 after each undefended enemy attack unless the players place threat on the main scheme instead. The Daily Bugle environment can restock stamina counters.
+Expert Campaign: Set each player's HP to the remaining HP recorded in the campaign log. Each player may deal themself 1 facedown encounter card to heal damage from their identity equal to their REC.`,
+            victory: `If Disturbed Psyche is in play with at least 2 threat on it, check "Trust Established?" in the campaign log.
+If the Typhoid Mary/Bloody Mary ally is in the victory display, check "Mary Defeated?".
+Record the title of each unique ally and support that was removed from the game.
+Check "Completed" for Stop the Presses!, then return to the Campaign Setup steps.
+Expert Campaign: Record each identity's remaining HP (no higher than their base HP).
+Expert Campaign: If the players lost, progress "Stop the Presses!" in the campaign log instead of checking Completed.`
+        },
+        {
+            name: "Finale - Kingpin",
+            modules: "Kingpin, Tombstone & Tracksuit Mafia. No Standard set (but still use the Expert set in expert mode). Villain: Kingpin (A1), plus Kingpin (B1) for expert. Main schemes: The King's Gambit, Endgame.",
+            setup: `Play Kingpin once all five scenarios are either Completed or Failed. Still follow Campaign Setup steps 6 to 11 (removed cards, expert healing, environments and the Typhoid Mary ally).
+Nemesis sets: each player reveals their set-aside nemesis minion. If it shares a title with a character in play (such as Echo's nemesis, Kingpin), remove it from the game and find and reveal an UNDERLING minion from the encounter deck instead. Encounter cards may bring the rest of your nemesis set into play; from then on those cards count as part of the encounter deck.
+If at least 3 COMPLETED environments are in play, give each minion in play a tough status card. If at least 4, also find and reveal the James Wesley attachment.
+Kingpin starts on his "1" side: he can't take damage, be stunned or confused, or have upgrades attached, and he schemes whenever he would attack. Each defeated minion adds a support counter to Public Support. With enough counters, Public Support flips Kingpin to his "2" side at the start of the villain phase, advances the main scheme and flips it to its HIGH side (which gives each minion guard).
+Expert Campaign: Set each player's HP to the remaining HP recorded in the campaign log. Each player may deal themself 1 facedown encounter card to heal damage from their identity equal to their REC.`,
+            victory: `The players take down Kingpin and win the campaign!
+If the players lost in standard mode: replay the scenario.
+Expert Campaign: If the players lost and at least one environment is on its COMPLETED side, choose one to flip to its FAILED side and replay the scenario. Otherwise, the players lose the campaign.`
+        }
+    ],
+    campaignInfo: `
+        <div class="w-full bg-gray-800/50 rounded-lg p-6 border border-gray-700 backdrop-blur-sm">
+            <h2 class="text-2xl font-bold text-rose-300 border-b border-gray-600 pb-3 mb-4">Fear No Evil Campaign Rules</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-gray-800 p-4 rounded-md border border-gray-700 md:col-span-2">
+                    <h3 class="text-lg font-semibold text-rose-400 mb-2">Campaign Setup (before every game)</h3>
+                    <div class="text-gray-300 text-sm space-y-2">
+                        <p>There's no fixed order: the players choose the next scenario each time, while two others move forward behind your back. Each player picks one hero for the whole campaign (aspects and decks can change between games).</p>
+                        <p><strong>1.</strong> Take the five campaign environments and remove each one whose scenario is already Completed or Failed.</p>
+                        <p><strong>2.</strong> Shuffle the rest and draw 2 at random (or the last one, if only one is left).</p>
+                        <p><strong>3. Progress</strong> the scenario matching each drawn environment: mark the next empty box to its right in the campaign log. If only one environment was drawn, mark two boxes instead. A scenario with three marks has <strong>Failed</strong>.</p>
+                        <p><strong>4.</strong> Choose any scenario that isn't Completed or Failed. Once all five are Completed or Failed, play the Kingpin finale and skip to step 6.</p>
+                        <p><strong>5.</strong> Choose the Underling villain and write it next to the scenario: use the villain already listed there if there is one; on your first campaign you may take the next villain in the recommended order; otherwise pick one at random that isn't already in the campaign log.</p>
+                        <p><strong>6.</strong> Gather the main scheme, villain and encounter sets, and set up the scenario as normal until player setup.</p>
+                        <p><strong>7.</strong> Each player removes from their deck every card listed under "Allies and Persona Supports Removed from the Campaign" (add cards back up to minimum deck size if needed), then does player setup.</p>
+                        <p><strong>8. Expert Campaign:</strong> set HP to the recorded value; each player may deal themself 1 facedown encounter card to heal damage equal to their REC.</p>
+                        <p><strong>9.</strong> Put each Completed scenario's environment into play on its <strong>COMPLETED</strong> side and each Failed scenario's environment on its <strong>FAILED</strong> side, and resolve their "Setup" abilities.</p>
+                        <p><strong>10.</strong> If "Trust Established?" is checked and "Mary Defeated?" isn't, put the Typhoid Mary campaign ally into play under any player's control.</p>
+                        <p><strong>11.</strong> Follow the chosen scenario's own setup instructions.</p>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                    <h3 class="text-lg font-semibold text-rose-400 mb-2">Underling Villains</h3>
+                    <div class="text-gray-300 text-sm space-y-2">
+                        <p>The five scenarios each pair their main scheme with one of five interchangeable UNDERLING villains. Standard uses stages I and II; expert uses II and III.</p>
+                        <p><strong>Hammerhead:</strong> stuns anyone he damages. Bring toughs, DEF and spare allies.</p>
+                        <p><strong>Bullseye:</strong> extra boost icons; hunts your allies and PERSONA supports, which are removed from the campaign. Adamantium-Laced Spine caps damage at 3 per attack until flipped.</p>
+                        <p><strong>Electro:</strong> Electric Charge counters give her extra boost cards. Spend resources (energy works best) to remove them.</p>
+                        <p><strong>Purple Man:</strong> every card gets a "Boost" that deals it as a facedown encounter card. INFLUENCED minions are vulnerable, so stun or confuse them.</p>
+                        <p><strong>Typhoid Mary:</strong> reveal Establish Trust and Disturbed Psyche, and use Typhoid Mary (A)/Bloody Mary (A), or (B) in expert. She flips every villain phase. You win by earning 3 tokens on Disturbed Psyche instead of defeating her.</p>
+                        <p><strong>First campaign order:</strong> Hammerhead, Bullseye, Electro, then Purple Man or Typhoid Mary. After that, choose at random.</p>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
+                    <h3 class="text-lg font-semibold text-rose-400 mb-2">Campaign Log &amp; Expert Rules</h3>
+                    <div class="text-gray-300 text-sm space-y-2">
+                        <p><strong>Track:</strong> each player's identity and HP, the villain used for each scenario, its progress marks (1, 2, Failed) and Completed box, allies and PERSONA supports removed from the campaign, and the "Trust Established?" and "Mary Defeated?" boxes.</p>
+                        <p><strong>Environments:</strong> each scenario's environment gives a bonus on its COMPLETED side or a penalty on its FAILED side for the rest of the campaign. You may look at both sides when choosing what to play.</p>
+                        <p><strong>Typhoid Mary ally:</strong> win a scenario with at least 2 threat on Disturbed Psyche to check "Trust Established?", and she joins you in later games unless she has been defeated.</p>
+                        <p><strong>Expert persistent damage:</strong> record each player's remaining HP after every game (never above base HP). A player defeated in a game their teammates win skips that game's Victory steps but rejoins in the next setup, healing as normal.</p>
+                        <p><strong>Losing a scenario</strong> doesn't fail it: in standard mode nothing is marked, so you can try again later. In expert mode, a loss progresses that scenario.</p>
+                    </div>
+                </div>
+            </div>
+        </div>`
 }
 };
